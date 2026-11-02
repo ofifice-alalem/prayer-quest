@@ -8,11 +8,11 @@
   }
   .dark body,
   html.dark body {
-    @apply bg-[#0A0E17] text-slate-100;
+    @apply bg-[#070A13] text-slate-100;
   }
   .light body,
   html:not(.dark) body {
-    @apply bg-[#F4F6FA] text-slate-900;
+    @apply bg-[#F1F4F9] text-slate-900;
   }
 }
 
@@ -24,99 +24,105 @@
 
 .dark ::-webkit-scrollbar-track,
 html.dark ::-webkit-scrollbar-track {
-  background: #0B0E17;
+  background: #070A13;
 }
 
 .dark ::-webkit-scrollbar-thumb,
 html.dark ::-webkit-scrollbar-thumb {
-  background: #1E2842;
+  background: #1C2640;
   border-radius: 4px;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover,
 html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #334166;
+  background: #2D3D66;
 }
 
 html:not(.dark) ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: #E2E8F0;
 }
 
 html:not(.dark) ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #94A3B8;
   border-radius: 4px;
 }
 
 html:not(.dark) ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #64748B;
 }
 
 /* Elite Gamer Glassmorphism & Card Styles */
 .gaming-card {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dark .gaming-card,
 html.dark .gaming-card {
-  background: #121829;
-  border: 1px solid #1F2A44;
-  color: #F1F5F9;
+  background: #0E1424;
+  border: 1px solid #1A243D;
+  color: #F8FAFC;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .dark .gaming-card:hover,
 html.dark .gaming-card:hover {
-  border-color: #2F3E64;
-  background: #151D33;
+  border-color: #2D3C66;
+  background: #12192D;
+  box-shadow: 0 8px 25px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 html:not(.dark) .gaming-card {
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   color: #0F172A;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
 }
 
 html:not(.dark) .gaming-card:hover {
   border-color: #CBD5E1;
-  background: #FAFAFC;
-  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.06);
-}
-
-.dark .gaming-card-active,
-html.dark .gaming-card-active {
-  background: #18223C;
-  border-color: #F59E0B;
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
-}
-
-html:not(.dark) .gaming-card-active {
-  background: #FFFBEB;
-  border-color: #F59E0B;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
-}
-
-/* Gamer Neon Accents */
-.glow-gold {
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
-}
-
-.glow-purple {
-  box-shadow: 0 0 25px rgba(168, 85, 247, 0.3);
-}
-
-.glow-cyan {
-  box-shadow: 0 0 20px rgba(14, 165, 233, 0.25);
+  background: #FFFFFF;
+  box-shadow: 0 8px 25px -4px rgba(0, 0, 0, 0.08), 0 2px 4px 0 rgba(0, 0, 0, 0.04);
 }
 
 /* Gaming Pill Button */
 .gaming-pill-gold {
   background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
   color: #000000;
-  font-weight: 800;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+  font-weight: 900;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  transition: all 0.2s ease;
 }
 
 .gaming-pill-gold:hover {
   background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
-  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Neon Glow Accents */
+.glow-gold {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+}
+
+/* Subtle HUD Gridlines */
+.hud-grid {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+html:not(.dark) .hud-grid {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
 }

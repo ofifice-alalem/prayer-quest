@@ -74,6 +74,61 @@ export default function DayDrawer({ isOpen, onClose, dateKey, onRecordUpdated })
 
   const dayScore = record ? calculateDayScore(record) : null;
 
+  // Check if all 5 prayers have caught Takbirat Al-Ihram
+  const isAllTakbirah = Boolean(
+    record?.prayers &&
+    Object.keys(PRAYERS_CONFIG).length > 0 &&
+    Object.keys(PRAYERS_CONFIG).every((pId) => {
+      const p = record.prayers[pId];
+      return p && p.prayed && p.inMosque && p.caughtTakbirah;
+    })
+  );
+
+  // Quick Action: Mark ALL 5 Fard Prayers with Takbirat Al-Ihram (500 pts / Gold Tier)
+  const handleSetAllTakbirah = async () => {
+    if (!record) return;
+    const prayers = { ...record.prayers };
+
+    Object.keys(PRAYERS_CONFIG).forEach((pId) => {
+      if (isAllTakbirah) {
+        // Toggle OFF all
+        prayers[pId] = {
+          prayed: false,
+          inMosque: false,
+          caughtTakbirah: false,
+          missedRakats: 0,
+        };
+      } else {
+        // Set all to 100% Takbirat Al-Ihram
+        prayers[pId] = {
+          prayed: true,
+          inMosque: true,
+          caughtTakbirah: true,
+          missedRakats: 0,
+        };
+      }
+    });
+
+    const updatedRecord = { ...record, prayers };
+    setRecord(updatedRecord);
+
+    try {
+      await saveDayRecord(updatedRecord);
+      if (onRecordUpdated) onRecordUpdated(updatedRecord);
+
+      if (!isAllTakbirah) {
+        confetti({
+          particleCount: 75,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#F59E0B', '#10B981', '#FFD700', '#FCD34D'],
+        });
+      }
+    } catch (err) {
+      console.error('Failed to save all takbirah:', err);
+    }
+  };
+
   // 1. One-click Takbirat Al-Ihram (100% Points)
   const handleToggleTakbirah = (prayerId) => {
     setRecord((prev) => {
@@ -307,6 +362,39 @@ export default function DayDrawer({ isOpen, onClose, dateKey, onRecordUpdated })
                       {isEditing ? 'انقر لتعديل أي صلاة' : 'وضع القراءة'}
                     </span>
                   </div>
+
+                  {/* QUICK HERO BUTTON: SELECT ALL WITH TAKBIRAT AL-IHRAM */}
+                  <button
+                    type="button"
+                    onClick={handleSetAllTakbirah}
+                    className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-black flex items-center justify-between border transition-all active:scale-95 shadow-sm ${
+                      isAllTakbirah
+                        ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-400 shadow-emerald-950/20'
+                        : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30 dark:border-amber-500/40'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1.5 rounded-lg ${isAllTakbirah ? 'bg-white/20 text-white' : 'bg-amber-500 text-black'}`}>
+                        <Star className="w-4 h-4 fill-current" />
+                      </div>
+                      <div className="text-right">
+                        <div className="font-black">
+                          {isAllTakbirah ? 'جميع الصلوات محددة بتكبيرة الإحرام ✓' : 'تحديد كل الصلوات بتكبيرة الإحرام'}
+                        </div>
+                        <div className="text-[10px] opacity-80 font-normal">
+                          {isAllTakbirah ? 'انقر لإلغاء التحديد' : 'حصد الدرجة الكاملة والشهادة الذهبية بنقرة واحدة (500 XP)'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-black ${
+                      isAllTakbirah 
+                        ? 'bg-white/20 text-white' 
+                        : 'bg-amber-500 text-black shadow-sm'
+                    }`}>
+                      500 XP 🏆
+                    </span>
+                  </button>
 
                   {/* READ-ONLY VIEW */}
                   {!isEditing ? (

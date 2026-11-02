@@ -126,10 +126,10 @@ export default function App() {
 
   return (
     <div className={`min-h-screen relative flex flex-col transition-colors duration-300 ${
-      isDark ? 'bg-game-bg text-slate-100' : 'bg-light-bg text-light-text'
+      isDark ? 'bg-game-bg text-slate-100' : 'bg-slate-50 text-slate-900'
     }`}>
-      {/* Background Islamic Watermark Pattern */}
-      <IslamicPattern opacity={isDark ? 0.05 : 0.03} />
+      {/* Background High-Clarity Islamic Girih Pattern */}
+      <IslamicPattern isDark={isDark} />
 
       {/* Hidden File Input for Backup Import */}
       <input
@@ -183,12 +183,12 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full border-t border-game-border/60 py-6 text-center text-xs text-slate-500 relative z-10">
+      <footer className="w-full border-t border-slate-200 dark:border-game-border/60 py-6 text-center text-xs text-slate-500 dark:text-slate-500 relative z-10">
         <p>
           مَـتـتـبّـع الـصَّـلَـوَات اليومية © {new Date().getFullYear()} • Daily Prayer Quest
         </p>
-        <p className="mt-1 text-[11px] text-slate-600">
-          مصمم كمنصة ألعاب إسلامية ومبني بـ React & Tailwind • يعمل بدون خادم وقابل للنشر على GitHub Pages
+        <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-600">
+          منصة ألعاب إسلامية مبنية بـ React & Tailwind • متوافقة بالكامل مع GitHub Pages
         </p>
       </footer>
     </div>

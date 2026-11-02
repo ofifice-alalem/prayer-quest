@@ -3,18 +3,12 @@ import {
   FileSpreadsheet, 
   Image as ImageIcon, 
   FileText, 
-  Download, 
   ChevronRight, 
-  ChevronLeft, 
-  Calendar as CalendarIcon, 
-  Check, 
-  X, 
-  Sparkles,
-  Printer
+  ChevronLeft
 } from 'lucide-react';
 import { getMonthRecords } from '../services/db';
-import { PRAYERS_CONFIG, calculatePrayerScore, calculateDayScore } from '../services/scoring';
-import { ARABIC_MONTHS, ARABIC_DAYS, getTodayKey, formatDateKey } from '../utils/dateUtils';
+import { calculateDayScore } from '../services/scoring';
+import { ARABIC_MONTHS, ARABIC_DAYS, getTodayKey } from '../utils/dateUtils';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -100,10 +94,11 @@ export default function ExportPage({ refreshTrigger }) {
     if (!tableRef.current) return;
     try {
       setExportingImage(true);
+      const isDark = document.documentElement.classList.contains('dark');
       const canvas = await html2canvas(tableRef.current, {
         scale: 2, // High resolution
         useCORS: true,
-        backgroundColor: '#0B132B',
+        backgroundColor: isDark ? '#080E1E' : '#FFFFFF',
       });
       const imageURL = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -127,7 +122,6 @@ export default function ExportPage({ refreshTrigger }) {
         format: 'a4',
       });
 
-      // Title & Metadata
       doc.setFontSize(18);
       doc.text(`Prayer Quest Matrix - ${ARABIC_MONTHS[currentMonth - 1]} ${currentYear}`, 40, 40);
       doc.setFontSize(10);
@@ -179,16 +173,16 @@ export default function ExportPage({ refreshTrigger }) {
     <div className="space-y-6">
       
       {/* Header and Action Bar */}
-      <div className="steam-glass rounded-2xl p-5 sm:p-6 border border-game-border shadow-steam-card flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="steam-glass rounded-2xl p-5 sm:p-6 shadow-steam-card flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-game-orange/20 border border-game-orange/40 flex items-center justify-center text-game-orange shadow-glow-orange">
+          <div className="w-12 h-12 rounded-xl bg-game-orange/15 border border-game-orange/40 flex items-center justify-center text-game-orange shadow-glow-orange">
             <FileSpreadsheet className="w-6 h-6" />
           </div>
           <div className="text-right">
-            <h2 className="text-xl sm:text-2xl font-black text-white">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
               السجل الشهري الشامل واستوديو التصدير
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
               جدول الفرائض مع علامة (✓) لصلاة المسجد ورقم الركعات الفائتة، مع إمكانية التصدير المباشر
             </p>
           </div>
@@ -200,7 +194,7 @@ export default function ExportPage({ refreshTrigger }) {
           <button
             onClick={handleExportPNG}
             disabled={exportingImage}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-game-card hover:bg-game-cardHover border border-game-border hover:border-game-orange text-xs font-bold text-white transition-all active:scale-95 shadow-sm"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white dark:bg-game-card hover:bg-slate-100 dark:hover:bg-game-cardHover border border-slate-200 dark:border-game-border hover:border-game-orange text-xs font-bold text-slate-800 dark:text-white transition-all active:scale-95 shadow-sm"
           >
             <ImageIcon className="w-4 h-4 text-game-orange" />
             <span>{exportingImage ? 'جاري التصدير...' : 'تصدير كصورة PNG'}</span>
@@ -210,26 +204,26 @@ export default function ExportPage({ refreshTrigger }) {
           <button
             onClick={handleExportPDF}
             disabled={exportingPdf}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-game-card hover:bg-game-cardHover border border-game-border hover:border-cyan-400 text-xs font-bold text-white transition-all active:scale-95 shadow-sm"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white dark:bg-game-card hover:bg-slate-100 dark:hover:bg-game-cardHover border border-slate-200 dark:border-game-border hover:border-cyan-500 text-xs font-bold text-slate-800 dark:text-white transition-all active:scale-95 shadow-sm"
           >
-            <FileText className="w-4 h-4 text-cyan-400" />
+            <FileText className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
             <span>{exportingPdf ? 'جاري الإنشاء...' : 'تصدير كملف PDF'}</span>
           </button>
 
           {/* Month Switcher */}
-          <div className="flex items-center gap-1 bg-game-surface p-1 rounded-xl border border-game-border">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-game-surface p-1 rounded-xl border border-slate-200 dark:border-game-border">
             <button
               onClick={handlePrevMonth}
-              className="p-1.5 rounded-lg hover:bg-game-card text-slate-300 hover:text-white"
+              className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-game-card text-slate-700 dark:text-slate-300"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
-            <span className="px-2 text-xs font-black text-slate-200">
+            <span className="px-2 text-xs font-black text-slate-800 dark:text-slate-200">
               {ARABIC_MONTHS[currentMonth - 1]}
             </span>
             <button
               onClick={handleNextMonth}
-              className="p-1.5 rounded-lg hover:bg-game-card text-slate-300 hover:text-white"
+              className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-game-card text-slate-700 dark:text-slate-300"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -239,7 +233,7 @@ export default function ExportPage({ refreshTrigger }) {
 
       {/* Filter Mode Switcher */}
       <div className="flex items-center justify-between text-xs font-bold px-2">
-        <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+        <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300">
           <input
             type="checkbox"
             checked={viewOnlyUntilToday}
@@ -249,7 +243,7 @@ export default function ExportPage({ refreshTrigger }) {
           <span>عرض الأيام حتى اليوم الحالي فقط ({maxDay} يوماً)</span>
         </label>
 
-        <span className="text-slate-400">
+        <span className="text-slate-500 dark:text-slate-400">
           الرمز <span className="text-game-green font-black">✓</span> يعني صلاة المسجد كاملة | الرقم يُشير لعدد الركعات الفائتة
         </span>
       </div>
@@ -257,20 +251,20 @@ export default function ExportPage({ refreshTrigger }) {
       {/* Printable / Exportable Table Container */}
       <div 
         ref={tableRef}
-        className="steam-glass rounded-2xl p-5 sm:p-6 border border-game-border shadow-steam-card overflow-x-auto"
+        className="steam-glass rounded-2xl p-5 sm:p-6 shadow-steam-card overflow-x-auto"
       >
         {/* Table Title for exported image */}
-        <div className="mb-4 pb-3 border-b border-game-border/80 flex items-center justify-between">
+        <div className="mb-4 pb-3 border-b border-slate-200 dark:border-game-border/80 flex items-center justify-between">
           <div className="text-right">
-            <h3 className="text-lg font-black text-white">
+            <h3 className="text-lg font-black text-slate-900 dark:text-white">
               سجل صلوات شهر {ARABIC_MONTHS[currentMonth - 1]} {currentYear}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
               متتبع الصلوات اليومية | Daily Prayer Quest
             </p>
           </div>
 
-          <div className="text-left text-xs text-slate-400">
+          <div className="text-left text-xs text-slate-500 dark:text-slate-400">
             <div>النقاط القصوى: 500 نقطة/يوم</div>
             <div className="text-game-orange font-bold">تكبيرة الإحرام 20 نقطة</div>
           </div>
@@ -278,7 +272,7 @@ export default function ExportPage({ refreshTrigger }) {
 
         <table className="w-full text-right text-xs">
           <thead>
-            <tr className="border-b-2 border-game-border bg-game-surface/80 text-slate-300 font-black">
+            <tr className="border-b-2 border-slate-200 dark:border-game-border bg-slate-100 dark:bg-game-surface/80 text-slate-700 dark:text-slate-300 font-black">
               <th className="py-3 px-3 text-right">اليوم والتاريخ</th>
               <th className="py-3 px-3 text-center">الفجر (2)</th>
               <th className="py-3 px-3 text-center">الظهر (4)</th>
@@ -289,7 +283,7 @@ export default function ExportPage({ refreshTrigger }) {
               <th className="py-3 px-3 text-center">الفائت</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-game-border/50">
+          <tbody className="divide-y divide-slate-200 dark:divide-game-border/50">
             {rows.map((row) => {
               const rec = row.record;
               const prayers = rec ? rec.prayers || {} : {};
@@ -298,7 +292,7 @@ export default function ExportPage({ refreshTrigger }) {
                 const p = prayers[prayerId];
                 if (!p || !p.prayed) {
                   return (
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-game-surface/60 text-slate-600 font-bold">
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 dark:bg-game-surface/60 text-slate-400 dark:text-slate-600 font-bold">
                       -
                     </span>
                   );
@@ -310,8 +304,8 @@ export default function ExportPage({ refreshTrigger }) {
                     <span 
                       className={`inline-flex items-center justify-center w-7 h-7 rounded-lg font-black text-sm shadow-sm ${
                         p.caughtTakbirah 
-                          ? 'bg-emerald-500/20 border border-emerald-500/80 text-emerald-400' 
-                          : 'bg-emerald-500/10 border border-emerald-500/40 text-emerald-300'
+                          ? 'bg-emerald-500/20 border border-emerald-500/80 text-emerald-600 dark:text-emerald-400' 
+                          : 'bg-emerald-500/10 border border-emerald-500/40 text-emerald-600 dark:text-emerald-300'
                       }`}
                       title={p.caughtTakbirah ? 'أدرك تكبيرة الإحرام (100 نقطة)' : 'أدرك جميع الركعات (80 نقطة)'}
                     >
@@ -324,7 +318,7 @@ export default function ExportPage({ refreshTrigger }) {
                 if (p.missedRakats > 0) {
                   return (
                     <span 
-                      className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-game-red/20 border border-game-red text-game-red font-black text-sm shadow-sm"
+                      className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500 text-game-red font-black text-sm shadow-sm"
                       title={`ضاعت ${p.missedRakats} ركعة`}
                     >
                       {p.missedRakats}
@@ -336,7 +330,7 @@ export default function ExportPage({ refreshTrigger }) {
                 if (!p.inMosque) {
                   return (
                     <span 
-                      className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 font-bold text-[10px]"
+                      className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-bold text-[10px]"
                       title="صُلّيت في البيت"
                     >
                       بيت
@@ -350,13 +344,13 @@ export default function ExportPage({ refreshTrigger }) {
               return (
                 <tr 
                   key={row.dateKey}
-                  className="hover:bg-game-card/40 transition-colors"
+                  className="hover:bg-slate-50 dark:hover:bg-game-card/40 transition-colors"
                 >
                   {/* Day Info */}
-                  <td className="py-2.5 px-3 font-bold text-white whitespace-nowrap">
+                  <td className="py-2.5 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <span className="w-5 text-center text-game-orange font-black">{row.dayNumber}</span>
-                      <span className="text-slate-300">{row.dayName}</span>
+                      <span className="text-slate-700 dark:text-slate-300">{row.dayName}</span>
                     </div>
                   </td>
 
@@ -378,7 +372,7 @@ export default function ExportPage({ refreshTrigger }) {
                         {row.dayScore.totalFardScore}
                       </span>
                     ) : (
-                      <span className="text-slate-600">0</span>
+                      <span className="text-slate-400 dark:text-slate-600">0</span>
                     )}
                   </td>
 
@@ -402,4 +396,3 @@ export default function ExportPage({ refreshTrigger }) {
     </div>
   );
 }
-

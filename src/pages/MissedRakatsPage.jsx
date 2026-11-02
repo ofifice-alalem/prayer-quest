@@ -130,35 +130,35 @@ export default function MissedRakatsPage({ refreshTrigger }) {
     <div className="space-y-6">
       
       {/* Header Card */}
-      <div className="steam-glass rounded-2xl p-5 sm:p-6 border border-game-border shadow-steam-card flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="steam-glass rounded-2xl p-5 sm:p-6 shadow-steam-card flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-game-red/20 border border-game-red/40 flex items-center justify-center text-game-red shadow-sm">
+          <div className="w-12 h-12 rounded-xl bg-rose-500/15 border border-rose-500/40 flex items-center justify-center text-game-red shadow-sm">
             <Activity className="w-6 h-6" />
           </div>
           <div className="text-right">
-            <h2 className="text-xl sm:text-2xl font-black text-white">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
               تقرير الركعات الفائتة لشهر {ARABIC_MONTHS[currentMonth - 1]} {currentYear}
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
               إحصائيات الركعات الضائعة وجدول حصري للأيام المتأثرة فقط
             </p>
           </div>
         </div>
 
         {/* Month Navigation */}
-        <div className="flex items-center gap-2 bg-game-surface/90 p-1.5 rounded-xl border border-game-border">
+        <div className="flex items-center gap-2 bg-slate-100 dark:bg-game-surface/90 p-1.5 rounded-xl border border-slate-200 dark:border-game-border">
           <button
             onClick={handlePrevMonth}
-            className="p-2 rounded-lg bg-game-card hover:bg-game-cardHover border border-game-border text-slate-200 hover:text-game-orange transition-colors"
+            className="p-2 rounded-lg bg-white dark:bg-game-card hover:bg-slate-50 dark:hover:bg-game-cardHover border border-slate-200 dark:border-game-border text-slate-700 dark:text-slate-200 hover:text-game-orange transition-colors"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
-          <span className="px-4 text-sm font-black text-slate-200 min-w-32 text-center">
+          <span className="px-4 text-sm font-black text-slate-800 dark:text-slate-200 min-w-32 text-center">
             {ARABIC_MONTHS[currentMonth - 1]} {currentYear}
           </span>
           <button
             onClick={handleNextMonth}
-            className="p-2 rounded-lg bg-game-card hover:bg-game-cardHover border border-game-border text-slate-200 hover:text-game-orange transition-colors"
+            className="p-2 rounded-lg bg-white dark:bg-game-card hover:bg-slate-50 dark:hover:bg-game-cardHover border border-slate-200 dark:border-game-border text-slate-700 dark:text-slate-200 hover:text-game-orange transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -169,42 +169,42 @@ export default function MissedRakatsPage({ refreshTrigger }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         
         {/* Total Missed Rak'ahs */}
-        <div className="steam-glass rounded-2xl p-5 border border-game-border flex items-center justify-between">
+        <div className="steam-glass rounded-2xl p-5 border border-slate-200 dark:border-game-border flex items-center justify-between">
           <div className="text-right">
-            <span className="text-xs font-bold text-slate-400">إجمالي الركعات الفائتة هذا الشهر</span>
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">إجمالي الركعات الفائتة هذا الشهر</span>
             <div className={`text-2xl sm:text-3xl font-black mt-1 ${
               totalMissedRakatsMonth > 0 ? 'text-game-red' : 'text-game-green'
             }`}>
-              {totalMissedRakatsMonth} <span className="text-xs text-slate-400 font-normal">ركعة</span>
+              {totalMissedRakatsMonth} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">ركعة</span>
             </div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-game-surface border border-game-border flex items-center justify-center text-game-red">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-game-surface border border-slate-200 dark:border-game-border flex items-center justify-center text-game-red">
             <TrendingDown className="w-6 h-6" />
           </div>
         </div>
 
         {/* Total Prayers Recorded */}
-        <div className="steam-glass rounded-2xl p-5 border border-game-border flex items-center justify-between">
+        <div className="steam-glass rounded-2xl p-5 border border-slate-200 dark:border-game-border flex items-center justify-between">
           <div className="text-right">
-            <span className="text-xs font-bold text-slate-400">الصلوات المسجلة في الشهر</span>
-            <div className="text-2xl sm:text-3xl font-black text-white mt-1">
-              {totalPrayersRecorded} <span className="text-xs text-slate-400 font-normal">صلاة</span>
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">الصلوات المسجلة في الشهر</span>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
+              {totalPrayersRecorded} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">صلاة</span>
             </div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-game-surface border border-game-border flex items-center justify-center text-game-orange">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-game-surface border border-slate-200 dark:border-game-border flex items-center justify-center text-game-orange">
             <CalendarIcon className="w-6 h-6" />
           </div>
         </div>
 
         {/* Days with missed rak'ahs count */}
-        <div className="steam-glass rounded-2xl p-5 border border-game-border flex items-center justify-between">
+        <div className="steam-glass rounded-2xl p-5 border border-slate-200 dark:border-game-border flex items-center justify-between">
           <div className="text-right">
-            <span className="text-xs font-bold text-slate-400">عدد الأيام ذات الركعات الفائتة</span>
-            <div className="text-2xl sm:text-3xl font-black text-amber-400 mt-1">
-              {daysWithMissedRakats.length} <span className="text-xs text-slate-400 font-normal">يوم</span>
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">عدد الأيام ذات الركعات الفائتة</span>
+            <div className="text-2xl sm:text-3xl font-black text-amber-500 dark:text-amber-400 mt-1">
+              {daysWithMissedRakats.length} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">يوم</span>
             </div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-game-surface border border-game-border flex items-center justify-center text-amber-400">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-game-surface border border-slate-200 dark:border-game-border flex items-center justify-center text-amber-500">
             <AlertTriangle className="w-6 h-6" />
           </div>
         </div>
@@ -212,8 +212,8 @@ export default function MissedRakatsPage({ refreshTrigger }) {
       </div>
 
       {/* Missed Rak'ahs per Prayer Breakdown (5 Fard Prayers) */}
-      <div className="steam-glass rounded-2xl p-5 border border-game-border">
-        <h3 className="text-sm font-black text-slate-200 mb-3 text-right">
+      <div className="steam-glass rounded-2xl p-5 border border-slate-200 dark:border-game-border">
+        <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 mb-3 text-right">
           توزيع الركعات الفائتة حسب كل صلاة:
         </h3>
 
@@ -226,16 +226,16 @@ export default function MissedRakatsPage({ refreshTrigger }) {
             return (
               <div 
                 key={prayerId}
-                className="p-3.5 rounded-xl bg-game-surface border border-game-border text-center hover:border-game-orange/40 transition-colors"
+                className="p-3.5 rounded-xl bg-slate-100 dark:bg-game-surface border border-slate-200 dark:border-game-border text-center hover:border-game-orange/40 transition-colors"
               >
-                <div className="w-8 h-8 mx-auto rounded-lg bg-game-card flex items-center justify-center text-game-orange mb-2">
+                <div className="w-8 h-8 mx-auto rounded-lg bg-white dark:bg-game-card flex items-center justify-center text-game-orange border border-slate-200 dark:border-transparent mb-2">
                   <Icon className="w-4 h-4" />
                 </div>
-                <div className="text-xs font-bold text-slate-300">{cfg.name}</div>
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">{cfg.name}</div>
                 <div className={`text-base font-black mt-1 ${
                   missedCount > 0 ? 'text-game-red' : 'text-game-green'
                 }`}>
-                  {missedCount} <span className="text-[10px] text-slate-400">ركعة</span>
+                  {missedCount} <span className="text-[10px] text-slate-500 dark:text-slate-400">ركعة</span>
                 </div>
               </div>
             );
@@ -244,29 +244,29 @@ export default function MissedRakatsPage({ refreshTrigger }) {
       </div>
 
       {/* FILTERED TABLE: Days with Missed Rak'ahs ONLY */}
-      <div className="steam-glass rounded-2xl p-5 sm:p-6 border border-game-border shadow-steam-card">
+      <div className="steam-glass rounded-2xl p-5 sm:p-6 shadow-steam-card">
         <div className="flex items-center justify-between mb-4">
           <div className="text-right">
-            <h3 className="text-base sm:text-lg font-black text-white">
+            <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
               جدول الأيام التي ضاعت فيها ركعات (حصراً)
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               يُعرض في هذا الجدول فقط الأيام التي فاتت فيها ركعات مع التفصيل الكامل
             </p>
           </div>
 
-          <span className="text-xs font-black px-3 py-1 rounded-lg bg-game-red/10 text-game-red border border-game-red/30">
+          <span className="text-xs font-black px-3 py-1 rounded-lg bg-rose-500/10 text-game-red border border-rose-500/30">
             {daysWithMissedRakats.length} أيام متأثرة
           </span>
         </div>
 
         {daysWithMissedRakats.length === 0 ? (
           <div className="py-12 text-center space-y-3">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shadow-glow-green">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 flex items-center justify-center shadow-glow-green">
               <CheckCircle className="w-8 h-8" />
             </div>
-            <h4 className="text-lg font-black text-white">ما شاء الله، إنجاز عظيم!</h4>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+            <h4 className="text-lg font-black text-slate-900 dark:text-white">ما شاء الله، إنجاز عظيم!</h4>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">
               لم تسجل أي ركعة فائتة في الصلوات المسجلة لهذا الشهر. حافظ على هذا التتابع المبارك!
             </p>
           </div>
@@ -274,21 +274,21 @@ export default function MissedRakatsPage({ refreshTrigger }) {
           <div className="overflow-x-auto">
             <table className="w-full text-right text-sm">
               <thead>
-                <tr className="border-b border-game-border text-xs text-slate-400 font-bold">
+                <tr className="border-b border-slate-200 dark:border-game-border text-xs text-slate-600 dark:text-slate-400 font-bold">
                   <th className="pb-3 px-3">التاريخ واليوم</th>
                   <th className="pb-3 px-3">تفصيل الصلوات والركعات الفائتة</th>
                   <th className="pb-3 px-3 text-center">إجمالي ركعات اليوم الفائتة</th>
                   <th className="pb-3 px-3 text-center">الإجراء</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-game-border/60">
+              <tbody className="divide-y divide-slate-200 dark:divide-game-border/60">
                 {daysWithMissedRakats.map((dayItem) => (
                   <tr 
                     key={dayItem.dateKey}
-                    className="hover:bg-game-card/50 transition-colors group"
+                    className="hover:bg-slate-100/60 dark:hover:bg-game-card/50 transition-colors group"
                   >
                     {/* Date */}
-                    <td className="py-3.5 px-3 font-bold text-white whitespace-nowrap">
+                    <td className="py-3.5 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">
                       {dayItem.formattedDate}
                     </td>
 
@@ -298,7 +298,7 @@ export default function MissedRakatsPage({ refreshTrigger }) {
                         {dayItem.breakdown.map((b, i) => (
                           <span 
                             key={i}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-game-red/10 border border-game-red/30 text-game-red text-xs font-bold"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-bold"
                           >
                             <span>صلاة {b.name}:</span>
                             <span className="font-black">ضاعت {b.missedCount} {b.missedCount === 1 ? 'ركعة' : b.missedCount === 2 ? 'ركعتان' : 'ركعات'}</span>
@@ -309,7 +309,7 @@ export default function MissedRakatsPage({ refreshTrigger }) {
 
                     {/* Total Day Missed */}
                     <td className="py-3.5 px-3 text-center">
-                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-game-card border border-game-border text-game-red font-black text-xs">
+                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-game-card border border-slate-200 dark:border-game-border text-game-red font-black text-xs">
                         {dayItem.totalDayMissed} ركعة
                       </span>
                     </td>
@@ -321,7 +321,7 @@ export default function MissedRakatsPage({ refreshTrigger }) {
                           setSelectedDateKey(dayItem.dateKey);
                           setIsDrawerOpen(true);
                         }}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-game-surface hover:bg-game-card border border-game-border hover:border-game-orange text-xs font-bold text-slate-200 transition-colors"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white dark:bg-game-surface hover:bg-slate-100 dark:hover:bg-game-card border border-slate-200 dark:border-game-border hover:border-game-orange text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors shadow-sm"
                       >
                         <span>عرض وتعديل</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
@@ -346,4 +346,3 @@ export default function MissedRakatsPage({ refreshTrigger }) {
     </div>
   );
 }
-

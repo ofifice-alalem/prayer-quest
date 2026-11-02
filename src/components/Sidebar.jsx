@@ -59,8 +59,8 @@ export default function Sidebar({ activeTab, setActiveTab, onImportClick }) {
       <div className="sticky top-24 space-y-4">
         
         {/* Navigation Card */}
-        <div className="steam-glass rounded-2xl p-3 border border-game-border shadow-steam-card">
-          <div className="px-3 py-2 text-xs font-black text-slate-400 uppercase tracking-widest flex items-center justify-between">
+        <div className="steam-glass rounded-2xl p-3 border border-slate-200 dark:border-game-border shadow-steam-card">
+          <div className="px-3 py-2 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center justify-between">
             <span>لوحة التحكم الرئيسية</span>
             <span className="w-2 h-2 rounded-full bg-game-orange animate-ping"></span>
           </div>
@@ -77,7 +77,7 @@ export default function Sidebar({ activeTab, setActiveTab, onImportClick }) {
                   className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold transition-all duration-200 group relative ${
                     isActive
                       ? 'bg-gradient-to-r from-game-orange to-amber-600 text-white shadow-glow-orange scale-[1.02]'
-                      : 'text-slate-300 hover:text-white hover:bg-game-card/80 hover:border-game-border/80 border border-transparent'
+                      : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-game-card/80 border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -85,7 +85,7 @@ export default function Sidebar({ activeTab, setActiveTab, onImportClick }) {
                       className={`p-2 rounded-lg transition-transform duration-200 group-hover:scale-110 ${
                         isActive
                           ? 'bg-white/20 text-white'
-                          : 'bg-game-surface text-game-orange group-hover:text-amber-400'
+                          : 'bg-slate-100 dark:bg-game-surface text-game-orange group-hover:text-amber-500'
                       }`}
                     >
                       <Icon className="w-5 h-5" />
@@ -95,8 +95,8 @@ export default function Sidebar({ activeTab, setActiveTab, onImportClick }) {
                         {tab.title}
                       </div>
                       <div
-                        className={`text-[11px] font-normal leading-tight mt-0.5 ${
-                          isActive ? 'text-white/80' : 'text-slate-400'
+                        className={`text-[11px] font-medium leading-tight mt-0.5 ${
+                          isActive ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'
                         }`}
                       >
                         {tab.subtitle}
@@ -105,7 +105,7 @@ export default function Sidebar({ activeTab, setActiveTab, onImportClick }) {
                   </div>
 
                   {tab.badge && !isActive && (
-                    <span className="px-2 py-0.5 text-[10px] font-black rounded-full bg-game-orange/20 text-game-orange border border-game-orange/40">
+                    <span className="px-2 py-0.5 text-[10px] font-black rounded-full bg-game-orange/15 text-game-orange border border-game-orange/30">
                       {tab.badge}
                     </span>
                   )}
@@ -120,27 +120,27 @@ export default function Sidebar({ activeTab, setActiveTab, onImportClick }) {
         </div>
 
         {/* Cloud/GitHub Backup Card */}
-        <div className="steam-glass rounded-2xl p-4 border border-game-border/80 text-right space-y-3">
+        <div className="steam-glass rounded-2xl p-4 border border-slate-200 dark:border-game-border/80 text-right space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-game-green" />
-              <span className="text-xs font-black text-slate-200 uppercase tracking-wider">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <span className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                 بياناتك في أمان
               </span>
             </div>
-            <span className="text-[10px] font-bold text-game-green bg-game-green/10 px-2 py-0.5 rounded border border-game-green/30">
+            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
               IndexedDB
             </span>
           </div>
 
-          <p className="text-xs text-slate-400 leading-relaxed font-normal">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
             محفوظة تلقائياً في متصفحك. يمكنك تنزيل نسخة احتياطية لرفعها إلى GitHub أو نقلها إلى أي جهاز آخر.
           </p>
 
           <div className="grid grid-cols-2 gap-2 pt-1">
             <button
               onClick={handleExportBackup}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-game-surface hover:bg-game-card border border-game-border hover:border-game-orange/60 text-xs font-bold text-slate-200 transition-all active:scale-95"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white dark:bg-game-surface hover:bg-slate-100 dark:hover:bg-game-card border border-slate-200 dark:border-game-border hover:border-game-orange/60 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all active:scale-95 shadow-sm"
               title="تنزيل نسخة احتياطية بصيغة JSON"
             >
               <Download className="w-3.5 h-3.5 text-game-orange" />
@@ -149,10 +149,10 @@ export default function Sidebar({ activeTab, setActiveTab, onImportClick }) {
 
             <button
               onClick={onImportClick}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-game-surface hover:bg-game-card border border-game-border hover:border-cyan-400 text-xs font-bold text-slate-200 transition-all active:scale-95"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white dark:bg-game-surface hover:bg-slate-100 dark:hover:bg-game-card border border-slate-200 dark:border-game-border hover:border-cyan-500 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all active:scale-95 shadow-sm"
               title="استيراد نسخة سابقة من جهازك"
             >
-              <Upload className="w-3.5 h-3.5 text-cyan-400" />
+              <Upload className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
               <span>استيراد نسخة</span>
             </button>
           </div>
@@ -162,4 +162,3 @@ export default function Sidebar({ activeTab, setActiveTab, onImportClick }) {
     </aside>
   );
 }
-

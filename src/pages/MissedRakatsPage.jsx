@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { getMonthRecords } from '../services/db';
 import { PRAYERS_CONFIG } from '../services/scoring';
-import { ARABIC_MONTHS, formatArabicDate } from '../utils/dateUtils';
+import { ARABIC_MONTHS, formatArabicDate, getTodayKey } from '../utils/dateUtils';
 import DayDrawer from '../components/DayDrawer';
 
 const PRAYER_ICONS = {
@@ -29,6 +29,7 @@ const PRAYER_ICONS = {
 
 export default function MissedRakatsPage({ refreshTrigger }) {
   const today = new Date();
+  const todayKey = getTodayKey();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1);
   const [monthRecords, setMonthRecords] = useState({});
@@ -92,6 +93,10 @@ export default function MissedRakatsPage({ refreshTrigger }) {
   const recordKeys = Object.keys(monthRecords).sort();
 
   recordKeys.forEach((dateKey) => {
+    // CRITICAL USER RULE: Exclude the current day (and future days) from missed calculations!
+    // Today's prayers are still ongoing and have not all entered their time.
+    if (dateKey >= todayKey) return;
+
     const rec = monthRecords[dateKey];
     if (!rec || !rec.prayers) return;
 
@@ -142,7 +147,7 @@ export default function MissedRakatsPage({ refreshTrigger }) {
               تقرير الركعات الفائتة لشهر {ARABIC_MONTHS[currentMonth - 1]} {currentYear}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              إحصائيات الركعات الضائعة وجدول حصري للأيام المتأثرة فقط
+              إحصائيات الأيام السابقة فقط (اليوم الحالي مستثنى لأن وقته لم ينتهِ بعد)
             </p>
           </div>
         </div>

@@ -57,12 +57,13 @@ export default function App() {
       const computedLevel = Math.max(1, Math.floor(points / 1000) + 1);
       setLevel(computedLevel);
 
-      // Streak calculation
+      // Streak calculation: Consecutive days with 100% Gold Tier
+      // (All 5 prayers in mosque + Takbirat Al-Ihram + 0 missed rakats = 500 pts)
       const dateSet = new Set(
         records
           .filter((r) => {
             const sc = calculateDayScore(r);
-            return sc.totalFardCompleted > 0;
+            return sc.isGoldTier;
           })
           .map((r) => r.date)
       );

@@ -4,7 +4,6 @@ import {
   Sparkles, 
   Calendar, 
   CheckCircle2, 
-  Save, 
   Moon, 
   Sun, 
   Sunset, 
@@ -14,7 +13,8 @@ import {
   Shield, 
   Star,
   Users,
-  Home
+  Home,
+  Award
 } from 'lucide-react';
 import { PRAYERS_CONFIG, SUNNAH_CONFIG, calculatePrayerScore, calculateDayScore } from '../services/scoring';
 import { getDayRecord, saveDayRecord } from '../services/db';
@@ -33,8 +33,7 @@ export default function TodayPage({ onRecordUpdated }) {
   const todayKey = getTodayKey();
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('saved'); // 'saved' | 'saving'
 
   useEffect(() => {
     loadToday();
@@ -52,124 +51,124 @@ export default function TodayPage({ onRecordUpdated }) {
     }
   };
 
+  // Instant Auto-Save on every single click
+  const updateAndAutoSave = async (newRecord) => {
+    setRecord(newRecord);
+    setSaveStatus('saving');
+    try {
+      await saveDayRecord(newRecord);
+      if (onRecordUpdated) onRecordUpdated(newRecord);
+      setSaveStatus('saved');
+
+      const score = calculateDayScore(newRecord);
+      if (score.isGoldTier) {
+        confetti({
+          particleCount: 75,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#F59E0B', '#10B981', '#FFD700', '#FCD34D'],
+        });
+      }
+    } catch (err) {
+      console.error('Failed to auto-save record:', err);
+      setSaveStatus('error');
+    }
+  };
+
   // 1. One-click Takbirat Al-Ihram (100% Points)
   const handleToggleTakbirah = (prayerId) => {
-    setRecord((prev) => {
-      const prayers = { ...prev.prayers };
-      const current = { ...(prayers[prayerId] || {}) };
+    if (!record) return;
+    const prayers = { ...record.prayers };
+    const current = { ...(prayers[prayerId] || {}) };
 
-      if (current.caughtTakbirah && current.inMosque && current.prayed) {
-        // Toggle OFF
-        current.prayed = false;
-        current.inMosque = false;
-        current.caughtTakbirah = false;
-        current.missedRakats = 0;
-      } else {
-        // Toggle ON (Full 100% Points)
-        current.prayed = true;
-        current.inMosque = true;
-        current.caughtTakbirah = true;
-        current.missedRakats = 0;
-      }
+    if (current.caughtTakbirah && current.inMosque && current.prayed) {
+      // Toggle OFF
+      current.prayed = false;
+      current.inMosque = false;
+      current.caughtTakbirah = false;
+      current.missedRakats = 0;
+    } else {
+      // Toggle ON (Full 100% Points)
+      current.prayed = true;
+      current.inMosque = true;
+      current.caughtTakbirah = true;
+      current.missedRakats = 0;
+    }
 
-      prayers[prayerId] = current;
-      return { ...prev, prayers };
-    });
+    prayers[prayerId] = current;
+    const updated = { ...record, prayers };
+    updateAndAutoSave(updated);
   };
 
   // 2. One-click Mosque All Rak'ahs without Takbirah (80% Points)
   const handleSetMosqueAllRakats = (prayerId) => {
-    setRecord((prev) => {
-      const prayers = { ...prev.prayers };
-      const current = { ...(prayers[prayerId] || {}) };
+    if (!record) return;
+    const prayers = { ...record.prayers };
+    const current = { ...(prayers[prayerId] || {}) };
 
-      if (current.inMosque && current.prayed && !current.caughtTakbirah && current.missedRakats === 0) {
-        // Toggle off
-        current.prayed = false;
-        current.inMosque = false;
-      } else {
-        current.prayed = true;
-        current.inMosque = true;
-        current.caughtTakbirah = false;
-        current.missedRakats = 0;
-      }
+    if (current.inMosque && current.prayed && !current.caughtTakbirah && current.missedRakats === 0) {
+      // Toggle off
+      current.prayed = false;
+      current.inMosque = false;
+    } else {
+      current.prayed = true;
+      current.inMosque = true;
+      current.caughtTakbirah = false;
+      current.missedRakats = 0;
+    }
 
-      prayers[prayerId] = current;
-      return { ...prev, prayers };
-    });
+    prayers[prayerId] = current;
+    const updated = { ...record, prayers };
+    updateAndAutoSave(updated);
   };
 
   // 3. Home Prayer (STRICTLY 0 POINTS - INCENTIVE FOR MOSQUE)
   const handleSetHomePrayer = (prayerId) => {
-    setRecord((prev) => {
-      const prayers = { ...prev.prayers };
-      const current = { ...(prayers[prayerId] || {}) };
+    if (!record) return;
+    const prayers = { ...record.prayers };
+    const current = { ...(prayers[prayerId] || {}) };
 
-      if (current.prayed && !current.inMosque) {
-        // Toggle off
-        current.prayed = false;
-      } else {
-        current.prayed = true;
-        current.inMosque = false; // HOME PRAYER = 0 POINTS
-        current.caughtTakbirah = false;
-        current.missedRakats = 0;
-      }
+    if (current.prayed && !current.inMosque) {
+      // Toggle off
+      current.prayed = false;
+    } else {
+      current.prayed = true;
+      current.inMosque = false; // HOME PRAYER = 0 POINTS
+      current.caughtTakbirah = false;
+      current.missedRakats = 0;
+    }
 
-      prayers[prayerId] = current;
-      return { ...prev, prayers };
-    });
+    prayers[prayerId] = current;
+    const updated = { ...record, prayers };
+    updateAndAutoSave(updated);
   };
 
   // 4. Direct Missed Rak'ahs Setter in mosque
   const handleSetMissedRakats = (prayerId, missedCount) => {
-    setRecord((prev) => {
-      const prayers = { ...prev.prayers };
-      const current = { ...(prayers[prayerId] || {}) };
+    if (!record) return;
+    const prayers = { ...record.prayers };
+    const current = { ...(prayers[prayerId] || {}) };
 
-      if (current.missedRakats === missedCount && current.prayed && current.inMosque) {
-        current.missedRakats = 0;
-      } else {
-        current.prayed = true;
-        current.inMosque = true;
-        current.caughtTakbirah = false;
-        current.missedRakats = missedCount;
-      }
+    if (current.missedRakats === missedCount && current.prayed && current.inMosque) {
+      current.missedRakats = 0;
+    } else {
+      current.prayed = true;
+      current.inMosque = true;
+      current.caughtTakbirah = false;
+      current.missedRakats = missedCount;
+    }
 
-      prayers[prayerId] = current;
-      return { ...prev, prayers };
-    });
+    prayers[prayerId] = current;
+    const updated = { ...record, prayers };
+    updateAndAutoSave(updated);
   };
 
   const handleSunnahToggle = (sunnahId) => {
-    setRecord((prev) => {
-      const sunnah = { ...prev.sunnah };
-      sunnah[sunnahId] = !sunnah[sunnahId];
-      return { ...prev, sunnah };
-    });
-  };
-
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-      await saveDayRecord(record);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-
-      if (onRecordUpdated) onRecordUpdated(record);
-
-      if (dayScore && dayScore.totalFardScore >= 400) {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#F59E0B', '#10B981', '#0EA5E9', '#EC4899'],
-        });
-      }
-    } catch (err) {
-      alert('حدث خطأ أثناء حفظ السجل: ' + err.message);
-    } finally {
-      setSaving(false);
-    }
+    if (!record) return;
+    const sunnah = { ...record.sunnah };
+    sunnah[sunnahId] = !sunnah[sunnahId];
+    const updated = { ...record, sunnah };
+    updateAndAutoSave(updated);
   };
 
   if (loading || !record) {
@@ -195,10 +194,28 @@ export default function TodayPage({ onRecordUpdated }) {
 
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-6">
           <div className="space-y-1.5 sm:space-y-2 max-w-2xl">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
                 QUEST ACTIVE • {formatArabicDate(todayKey)}
               </span>
+
+              {/* Instant Auto-Save Indicator */}
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-mono">
+                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                <span>حفظ تلقائي فوري</span>
+              </span>
+
+              {/* Certificate Live Badge if earned */}
+              {dayScore.certificate && (
+                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
+                  dayScore.certificate.type === 'gold'
+                    ? 'bg-amber-400/20 text-yellow-300 border-yellow-400/40'
+                    : 'bg-cyan-400/20 text-cyan-200 border-cyan-400/40'
+                }`}>
+                  <Award className="w-3 h-3" />
+                  <span>{dayScore.certificate.title}</span>
+                </span>
+              )}
             </div>
 
             <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
@@ -231,12 +248,20 @@ export default function TodayPage({ onRecordUpdated }) {
             </div>
           </div>
 
-          {/* Quick Level Badge */}
+          {/* Certificate / Level Box */}
           <div className="hidden lg:flex flex-col items-center justify-center p-5 rounded-2xl bg-black/40 border border-white/20 backdrop-blur-md text-center min-w-[170px]">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center shadow-lg mb-2">
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg mb-2 ${
+              dayScore.isGoldTier 
+                ? 'bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500' 
+                : dayScore.isSilverTier 
+                ? 'bg-gradient-to-tr from-slate-200 via-slate-100 to-slate-400' 
+                : 'bg-gradient-to-tr from-amber-500 to-yellow-400'
+            }`}>
               <Trophy className="w-8 h-8 text-black" />
             </div>
-            <div className="text-[10px] text-purple-200 uppercase tracking-widest font-black">تصنيف اليوم</div>
+            <div className="text-[10px] text-purple-200 uppercase tracking-widest font-black">
+              {dayScore.certificate ? dayScore.certificate.title : 'تصنيف اليوم'}
+            </div>
             <div className="text-lg font-black text-amber-300 font-mono">{dayScore.fardPercentage}% إنجاز</div>
           </div>
         </div>
@@ -260,12 +285,12 @@ export default function TodayPage({ onRecordUpdated }) {
               الصلوات المفروضة • FEATURED PRAYERS
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              تكبيرة الإحرام (100 نقطة) | جماعة كاملة (80 نقطة) | بالبيت (0 نقطة)
+              تكبيرة الإحرام (100 نقطة) | جماعة كاملة (80 نقطة) | بالبيت (0 نقطة) — التعديل يُحفظ تلقائياً
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
           {Object.keys(PRAYERS_CONFIG).map((prayerId) => {
             const config = PRAYERS_CONFIG[prayerId];
             const Icon = PRAYER_ICONS[prayerId] || Sun;
@@ -312,8 +337,6 @@ export default function TodayPage({ onRecordUpdated }) {
                   </div>
 
                   {/* 1. HERO ACTION BUTTON: TAKBIRAT AL-IHRAM */}
-                  {/* UNSELECTED: Completely FLAT, muted neutral color. NO glowing gold! */}
-                  {/* SELECTED: Emerald Green with white text and glow! */}
                   <button
                     type="button"
                     onClick={() => handleToggleTakbirah(prayerId)}
@@ -337,7 +360,7 @@ export default function TodayPage({ onRecordUpdated }) {
                     </span>
                   </button>
 
-                  {/* 2. SECONDARY ACTIONS (Using Vector Lucide Icons instead of emojis!) */}
+                  {/* 2. SECONDARY ACTIONS (Vector Lucide Icons) */}
                   <div className="grid grid-cols-2 gap-1.5 mb-2.5">
                     <button
                       type="button"
@@ -420,7 +443,7 @@ export default function TodayPage({ onRecordUpdated }) {
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
           {SUNNAH_CONFIG.map((s) => {
             const isDone = Boolean(record.sunnah && record.sunnah[s.id]);
 
@@ -450,31 +473,6 @@ export default function TodayPage({ onRecordUpdated }) {
             );
           })}
         </div>
-      </div>
-
-      {/* Floating Save Action Bar */}
-      <div className="sticky bottom-20 lg:bottom-6 z-20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-[#0E1424]/95 backdrop-blur-md border border-slate-200 dark:border-[#1E2842] shadow-2xl">
-        <div className="flex items-center gap-2">
-          {saveSuccess ? (
-            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span>تم حفظ صلوات اليوم بنجاح في IndexedDB!</span>
-            </span>
-          ) : (
-            <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
-              اضغط على زر الحفظ لتثبيت نقاط اليوم وتحديث المستويات
-            </span>
-          )}
-        </div>
-
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl gaming-pill-gold text-black font-black text-xs transition-all active:scale-95 shadow-md"
-        >
-          <Save className="w-4 h-4" />
-          <span>{saving ? 'جاري الحفظ...' : 'حفظ صلوات اليوم'}</span>
-        </button>
       </div>
 
     </div>

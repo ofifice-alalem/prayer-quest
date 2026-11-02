@@ -8,11 +8,12 @@ import {
 } from 'lucide-react';
 import { getMonthRecords } from '../services/db';
 import { PRAYERS_CONFIG, SUNNAH_CONFIG } from '../services/scoring';
-import { ARABIC_MONTHS, formatArabicDate } from '../utils/dateUtils';
+import { ARABIC_MONTHS, formatArabicDate, getTodayKey } from '../utils/dateUtils';
 import DayDrawer from '../components/DayDrawer';
 
 export default function MosqueTrackerPage({ refreshTrigger }) {
   const today = new Date();
+  const todayKey = getTodayKey();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1);
   const [monthRecords, setMonthRecords] = useState({});
@@ -73,6 +74,9 @@ export default function MosqueTrackerPage({ refreshTrigger }) {
   const recordKeys = Object.keys(monthRecords).sort();
 
   recordKeys.forEach((dateKey) => {
+    // Exclude today and future days from missed / outside mosque stats!
+    if (dateKey >= todayKey) return;
+
     const rec = monthRecords[dateKey];
     if (!rec) return;
 

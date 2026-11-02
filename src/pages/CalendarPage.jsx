@@ -174,7 +174,7 @@ export default function CalendarPage({ refreshTrigger }) {
                   : 'gaming-card hover:border-amber-500/80'
               }`}
             >
-              {/* Day Number and Today Tag */}
+              {/* Day Number and Badges */}
               <div className="flex items-center justify-between w-full">
                 <span className={`text-xs sm:text-base font-black font-mono ${
                   day.isToday 
@@ -184,11 +184,28 @@ export default function CalendarPage({ refreshTrigger }) {
                   {day.dayNumber}
                 </span>
 
-                {day.isToday && (
-                  <span className="px-1 py-0.2 sm:px-1.5 sm:py-0.5 rounded text-[8px] sm:text-[9px] font-black bg-amber-500 text-black leading-tight">
-                    اليوم
-                  </span>
-                )}
+                <div className="flex items-center gap-1">
+                  {/* Certificate Badge: Gold or Silver */}
+                  {hasData && score.certificate && (
+                    <span 
+                      className={`px-1 py-0.2 rounded text-[8px] sm:text-[9px] font-black border flex items-center gap-0.5 ${
+                        score.certificate.type === 'gold'
+                          ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40'
+                          : 'bg-slate-200 text-slate-800 border-slate-300 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-500/40'
+                      }`}
+                      title={`${score.certificate.title}: ${score.certificate.subtitle}`}
+                    >
+                      <span>{score.certificate.type === 'gold' ? '🏆' : '🥈'}</span>
+                      <span className="hidden md:inline">{score.certificate.type === 'gold' ? 'ذهبية' : 'فضية'}</span>
+                    </span>
+                  )}
+
+                  {day.isToday && (
+                    <span className="px-1 py-0.2 sm:px-1.5 sm:py-0.5 rounded text-[8px] sm:text-[9px] font-black bg-amber-500 text-black leading-tight">
+                      اليوم
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Day Prayer Performance Badges */}

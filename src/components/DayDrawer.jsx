@@ -236,11 +236,28 @@ export default function DayDrawer({ isOpen, onClose, dateKey, onRecordUpdated })
           </div>
 
           {/* Body Content */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 pb-28">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 pb-28">
             {loading || !record ? (
               <div className="py-24 text-center text-slate-500 font-bold">جاري تحميل البيانات...</div>
             ) : (
               <>
+                {/* Certificate Banner (Gold or Silver) */}
+                {dayScore.certificate && (
+                  <div className={`p-3.5 rounded-2xl border flex items-center gap-3 shadow-sm ${
+                    dayScore.certificate.type === 'gold'
+                      ? 'bg-amber-100/90 text-amber-900 border-amber-300 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-500/50'
+                      : 'bg-slate-200/90 text-slate-800 border-slate-300 dark:bg-cyan-950/40 dark:text-cyan-200 dark:border-cyan-500/50'
+                  }`}>
+                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-black/30 flex items-center justify-center text-xl shrink-0 shadow-sm">
+                      {dayScore.certificate.type === 'gold' ? '🏆' : '🥈'}
+                    </div>
+                    <div>
+                      <div className="text-xs font-black">{dayScore.certificate.title}</div>
+                      <div className="text-[10px] opacity-85 mt-0.5">{dayScore.certificate.subtitle}</div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Score Summary HUD Card */}
                 <div className="gaming-card rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-[#222E4D] shadow-sm">
                   <div className="flex items-center justify-between mb-3">

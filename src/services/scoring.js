@@ -176,6 +176,30 @@ export function calculateDayScore(dayRecord = {}) {
   const maxSunnahScore = SUNNAH_CONFIG.length * 100;
   const sunnahPercentage = Math.round((totalSunnahScore / maxSunnahScore) * 100);
 
+  // Certificates & Tiers:
+  // Gold Tier: All 5 prayers in mosque with Takbirat Al-Ihram (500 pts, 0 missed rakats)
+  const isGoldTier = totalFardPrayedInMosque === 5 && totalFardScore === 500 && totalFardMissedRakats === 0;
+
+  // Silver Tier: All 5 prayers in mosque with all rak'ahs attended (0 missed rakats), even if Takbirah was missed
+  const isSilverTier = !isGoldTier && totalFardPrayedInMosque === 5 && totalFardMissedRakats === 0;
+
+  let certificate = null;
+  if (isGoldTier) {
+    certificate = {
+      type: 'gold',
+      title: 'الشهادة الذهبية',
+      subtitle: 'إدراك تكبيرة الإحرام في جميع الصلوات بالمسجد',
+      badgeColor: 'amber',
+    };
+  } else if (isSilverTier) {
+    certificate = {
+      type: 'silver',
+      title: 'الشهادة الفضية',
+      subtitle: 'إدراك كافة صلوات وركعات المسجد كاملة دون فوات أي ركعة',
+      badgeColor: 'cyan',
+    };
+  }
+
   return {
     totalFardScore,
     maxFardScore,
@@ -189,5 +213,8 @@ export function calculateDayScore(dayRecord = {}) {
     completedSunnahCount,
     totalSunnahCount: SUNNAH_CONFIG.length,
     sunnahPercentage,
+    isGoldTier,
+    isSilverTier,
+    certificate,
   };
 }

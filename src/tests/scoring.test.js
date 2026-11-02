@@ -35,4 +35,33 @@ const maghribMissed1 = calculatePrayerScore('maghrib', { prayed: true, inMosque:
 assert.strictEqual(maghribMissed1.score, 53.3, '2 of 3 rakats in Maghrib should give 53.3 points');
 console.log('✔ Test 6 Passed: Maghrib in mosque missed 1 rakat gives 53.3 points');
 
+// Test 7: Gold Tier day (all 5 in mosque with Takbirat Al-Ihram, 0 missed)
+const goldDay = calculateDayScore({
+  prayers: {
+    fajr: { prayed: true, inMosque: true, caughtTakbirah: true, missedRakats: 0 },
+    dhuhr: { prayed: true, inMosque: true, caughtTakbirah: true, missedRakats: 0 },
+    asr: { prayed: true, inMosque: true, caughtTakbirah: true, missedRakats: 0 },
+    maghrib: { prayed: true, inMosque: true, caughtTakbirah: true, missedRakats: 0 },
+    isha: { prayed: true, inMosque: true, caughtTakbirah: true, missedRakats: 0 },
+  }
+});
+assert.strictEqual(goldDay.isGoldTier, true, 'All takbirah in mosque should be Gold Tier');
+assert.strictEqual(goldDay.totalFardScore, 500);
+console.log('✔ Test 7 Passed: Gold Tier recognized for 500/500 all Takbirah in mosque');
+
+// Test 8: Silver Tier day (all 5 in mosque, 0 missed rakats, but missed some takbirah)
+const silverDay = calculateDayScore({
+  prayers: {
+    fajr: { prayed: true, inMosque: true, caughtTakbirah: true, missedRakats: 0 },
+    dhuhr: { prayed: true, inMosque: true, caughtTakbirah: false, missedRakats: 0 }, // caught 4/4
+    asr: { prayed: true, inMosque: true, caughtTakbirah: false, missedRakats: 0 },   // caught 4/4
+    maghrib: { prayed: true, inMosque: true, caughtTakbirah: true, missedRakats: 0 },
+    isha: { prayed: true, inMosque: true, caughtTakbirah: false, missedRakats: 0 },  // caught 4/4
+  }
+});
+assert.strictEqual(silverDay.isGoldTier, false, 'Should not be gold because takbirah missed');
+assert.strictEqual(silverDay.isSilverTier, true, 'Should be Silver Tier because all 5 in mosque and 0 missed rakats');
+assert.strictEqual(silverDay.totalFardMissedRakats, 0);
+console.log('✔ Test 8 Passed: Silver Tier recognized for 0 missed rakats in mosque');
+
 console.log('All scoring engine tests passed successfully! 🎉');

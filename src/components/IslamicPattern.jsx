@@ -55,3 +55,4 @@ export default function IslamicPattern({ opacity = 0.04 }) {
     </div>
   );
 }
+

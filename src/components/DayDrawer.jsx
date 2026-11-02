@@ -439,3 +439,4 @@ export default function DayDrawer({ isOpen, onClose, dateKey, onRecordUpdated })
     </div>
   );
 }
+

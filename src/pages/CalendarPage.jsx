@@ -242,3 +242,4 @@ export default function CalendarPage({ refreshTrigger }) {
     </div>
   );
 }
+

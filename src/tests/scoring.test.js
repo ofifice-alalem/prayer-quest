@@ -54,3 +54,4 @@ assert.strictEqual(dayRes.completedSunnahCount, 2, '2 Sunnah completed');
 console.log('✔ Test 6 Passed: Day totals and Sunnah separate track are accurate');
 
 console.log('All scoring engine tests passed successfully! 🎉');
+

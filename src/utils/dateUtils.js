@@ -87,3 +87,4 @@ export function generateMonthGrid(year, month) {
 
   return days;
 }
+

@@ -195,3 +195,4 @@ export async function importDatabaseBackup(jsonData) {
     transaction.onerror = () => reject(transaction.error);
   });
 }
+

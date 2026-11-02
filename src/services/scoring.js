@@ -189,3 +189,4 @@ export function calculateDayScore(dayRecord = {}) {
     sunnahPercentage,
   };
 }
+

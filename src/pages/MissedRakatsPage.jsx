@@ -346,3 +346,4 @@ export default function MissedRakatsPage({ refreshTrigger }) {
     </div>
   );
 }
+

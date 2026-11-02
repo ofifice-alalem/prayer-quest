@@ -16,7 +16,8 @@ import {
   Home,
   Award,
   Zap,
-  Flame
+  Flame,
+  Check
 } from 'lucide-react';
 import { PRAYERS_CONFIG, SUNNAH_CONFIG, calculatePrayerScore, calculateDayScore } from '../services/scoring';
 import { getDayRecord, saveDayRecord } from '../services/db';
@@ -482,7 +483,7 @@ export default function TodayPage({ onRecordUpdated }) {
                       ? 'bg-amber-500 text-black font-black' 
                       : 'border border-slate-300 dark:border-slate-700'
                   }`}>
-                    {isDone ? '✓' : ''}
+                    {isDone && <Check className="w-3 h-3 stroke-[3]" />}
                   </div>
                 </div>
               </button>

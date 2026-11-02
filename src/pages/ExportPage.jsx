@@ -4,11 +4,16 @@ import {
   Image as ImageIcon, 
   FileText, 
   ChevronRight, 
-  ChevronLeft
+  ChevronLeft,
+  Check,
+  Award,
+  Shield,
+  Trophy
 } from 'lucide-react';
 import { getMonthRecords } from '../services/db';
 import { calculateDayScore } from '../services/scoring';
 import { ARABIC_MONTHS, ARABIC_DAYS, getTodayKey } from '../utils/dateUtils';
+import PrayerEditDialog from '../components/PrayerEditDialog';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -23,6 +28,7 @@ export default function ExportPage({ refreshTrigger }) {
   const [exportingImage, setExportingImage] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
   const [viewOnlyUntilToday, setViewOnlyUntilToday] = useState(true);
+  const [editingCell, setEditingCell] = useState(null);
 
   const tableRef = useRef(null);
 
@@ -95,10 +101,13 @@ export default function ExportPage({ refreshTrigger }) {
     try {
       setExportingImage(true);
       const isDark = document.documentElement.classList.contains('dark');
-      const canvas = await html2canvas(tableRef.current, {
+      const tableEl = tableRef.current;
+      const canvas = await html2canvas(tableEl, {
         scale: 2,
         useCORS: true,
+        logging: false,
         backgroundColor: isDark ? '#0E1424' : '#FFFFFF',
+        windowWidth: Math.max(1024, tableEl.scrollWidth),
       });
       const imageURL = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -127,7 +136,7 @@ export default function ExportPage({ refreshTrigger }) {
       doc.text(title, 400, 35, { align: 'center' });
 
       const headers = [
-        ['اليوم والتاريخ', 'الفجر (2)', 'الظهر (4)', 'العصر (4)', 'المغرب (3)', 'العشاء (4)', 'نقاط المسجد', 'الركعات الفائتة']
+        ['اليوم والتاريخ', 'الشهادة', 'الفجر (2)', 'الظهر (4)', 'العصر (4)', 'المغرب (3)', 'العشاء (4)', 'نقاط المسجد', 'الركعات الفائتة']
       ];
 
       const bodyData = rows.map((r) => {
@@ -144,8 +153,10 @@ export default function ExportPage({ refreshTrigger }) {
           return 'Home (0)';
         };
 
+        const certLabel = score?.isGoldTier ? 'ذهبية 🏅' : score?.isSilverTier ? 'فضية 🥈' : '-';
         return [
           `${r.dayName} ${r.dayNumber}`,
+          certLabel,
           cellSymbol('fajr'),
           cellSymbol('dhuhr'),
           cellSymbol('asr'),
@@ -246,15 +257,43 @@ export default function ExportPage({ refreshTrigger }) {
           <span>عرض الأيام حتى اليوم الحالي فقط ({maxDay} يوماً)</span>
         </label>
 
-        <span className="text-slate-500 dark:text-slate-400">
-          الرمز <span className="text-emerald-500 font-black">✓</span> يعني صلاة المسجد كاملة | الرقم يُشير لعدد الركعات الفائتة بالمسجد
-        </span>
+        <div className="flex flex-wrap items-center gap-2 text-slate-500 dark:text-slate-400 text-[11px]">
+          <div className="flex items-center gap-1">
+            <span>الرمز</span>
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded bg-emerald-500/20 text-emerald-500">
+              <Check className="w-3 h-3 stroke-[3]" />
+            </span>
+            <span>صلاة المسجد كاملة</span>
+          </div>
+          <span className="text-slate-300 dark:text-slate-700">|</span>
+          <div className="flex items-center gap-1">
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500/20 border border-amber-500 text-amber-600 dark:text-amber-400 inline-flex items-center gap-0.5">
+              <Award className="w-2.5 h-2.5 text-amber-500" />
+              ذهبية
+            </span>
+            <span>كل الصلوات بتكبيرة الإحرام (500)</span>
+          </div>
+          <span className="text-slate-300 dark:text-slate-700">|</span>
+          <div className="flex items-center gap-1">
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-slate-200 dark:bg-slate-700 border border-slate-400 text-slate-700 dark:text-slate-300 inline-flex items-center gap-0.5">
+              <Shield className="w-2.5 h-2.5 text-slate-400" />
+              فضية
+            </span>
+            <span>كل الركعات بالمسجد (0 فائت)</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Swipe / Interactive Helper */}
+      <div className="flex md:hidden items-center justify-between text-[11px] text-amber-600 dark:text-amber-400 bg-amber-500/10 px-3.5 py-2 rounded-xl border border-amber-500/20 font-bold">
+        <span>👈 اسحب أفقياً لتصفح الجدول، وانقر على أي صلاة لتعديلها</span>
+        <span className="px-2 py-0.5 rounded bg-amber-500 text-black text-[9px] font-black">حوار سريع ⚡</span>
       </div>
 
       {/* Printable / Exportable Table Container */}
       <div 
         ref={tableRef}
-        className="gaming-card rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-[#1E2842] overflow-x-auto shadow-sm"
+        className="gaming-card rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-[#1E2842] overflow-x-auto shadow-sm"
       >
         {/* Table Title for exported image */}
         <div className="mb-4 pb-3 border-b border-slate-200 dark:border-[#1E2842] flex items-center justify-between">
@@ -267,23 +306,38 @@ export default function ExportPage({ refreshTrigger }) {
             </p>
           </div>
 
-          <div className="text-left text-xs text-slate-500 dark:text-slate-400 font-mono">
+          <div className="text-left text-xs text-slate-500 dark:text-slate-400 font-mono" dir="rtl">
             <div>النقاط القصوى: 500 نقطة/يوم</div>
-            <div className="text-amber-600 dark:text-amber-400 font-bold">تكبيرة الإحرام بالمسجد 100%</div>
+            <div className="flex items-center gap-2 justify-end mt-1 text-[11px]">
+              <span className="text-amber-500 font-bold">🏅 ذهبية (تكبيرة الإحرام 100%)</span>
+              <span className="text-slate-400 font-bold">🥈 فضية (0 فائت)</span>
+            </div>
           </div>
         </div>
 
-        <table className="w-full text-right text-xs">
+        <table className="w-full min-w-[720px] table-fixed text-right text-xs" dir="rtl">
+          <colgroup>
+            <col className="w-[17%]" />
+            <col className="w-[12%]" />
+            <col className="w-[10%]" />
+            <col className="w-[10%]" />
+            <col className="w-[10%]" />
+            <col className="w-[10%]" />
+            <col className="w-[10%]" />
+            <col className="w-[11%]" />
+            <col className="w-[10%]" />
+          </colgroup>
           <thead>
             <tr className="border-b border-slate-200 dark:border-[#1E2842] bg-slate-50 dark:bg-[#0E1424] text-slate-700 dark:text-slate-300 font-black">
               <th className="py-3 px-3 text-right">اليوم والتاريخ</th>
-              <th className="py-3 px-3 text-center">الفجر (2)</th>
-              <th className="py-3 px-3 text-center">الظهر (4)</th>
-              <th className="py-3 px-3 text-center">العصر (4)</th>
-              <th className="py-3 px-3 text-center">المغرب (3)</th>
-              <th className="py-3 px-3 text-center">العشاء (4)</th>
-              <th className="py-3 px-3 text-center">نقاط المسجد</th>
-              <th className="py-3 px-3 text-center">الفائت</th>
+              <th className="py-3 px-2 text-center">الشهادة</th>
+              <th className="py-3 px-2 text-center">الفجر (2)</th>
+              <th className="py-3 px-2 text-center">الظهر (4)</th>
+              <th className="py-3 px-2 text-center">العصر (4)</th>
+              <th className="py-3 px-2 text-center">المغرب (3)</th>
+              <th className="py-3 px-2 text-center">العشاء (4)</th>
+              <th className="py-3 px-2 text-center">نقاط المسجد</th>
+              <th className="py-3 px-2 text-center">الفائت</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-[#1E2842]/50">
@@ -295,99 +349,180 @@ export default function ExportPage({ refreshTrigger }) {
                 const p = prayers[prayerId];
                 if (!p || !p.prayed) {
                   return (
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#0E1424] text-slate-400 font-bold">
-                      -
-                    </span>
+                    <div className="flex items-center justify-center">
+                      <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#0E1424] text-slate-400 font-bold">
+                        -
+                      </span>
+                    </div>
                   );
                 }
 
                 // If prayed in mosque with full rak'ahs (either caught takbirah or missed 0)
                 if (p.inMosque && (p.caughtTakbirah || (p.missedRakats || 0) === 0)) {
                   return (
-                    <span 
-                      className={`inline-flex items-center justify-center w-7 h-7 rounded-lg font-black text-sm shadow-sm ${
-                        p.caughtTakbirah 
-                          ? 'bg-emerald-500/20 border border-emerald-500 text-emerald-600 dark:text-emerald-400' 
-                          : 'bg-cyan-500/20 border border-cyan-500 text-cyan-600 dark:text-cyan-300'
-                      }`}
-                      title={p.caughtTakbirah ? 'أدرك تكبيرة الإحرام (100 نقطة)' : 'أدرك جميع الركعات (80 نقطة)'}
-                    >
-                      ✓
-                    </span>
+                    <div className="flex items-center justify-center">
+                      <span 
+                        className={`flex items-center justify-center w-7 h-7 rounded-lg shadow-sm ${
+                          p.caughtTakbirah 
+                            ? 'bg-emerald-500/20 border border-emerald-500 text-emerald-600 dark:text-emerald-400' 
+                            : 'bg-cyan-500/20 border border-cyan-500 text-cyan-600 dark:text-cyan-300'
+                        }`}
+                        title={p.caughtTakbirah ? 'أدرك تكبيرة الإحرام (100 نقطة)' : 'أدرك جميع الركعات (80 نقطة)'}
+                      >
+                        <Check className="w-4 h-4 stroke-[3]" />
+                      </span>
+                    </div>
                   );
                 }
 
                 // If missed rak'ahs in mosque
                 if (p.inMosque && p.missedRakats > 0) {
                   return (
-                    <span 
-                      className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500 text-rose-500 font-black text-sm font-mono shadow-sm"
-                      title={`ضاعت ${p.missedRakats} ركعة بالمسجد`}
-                    >
-                      {p.missedRakats}
-                    </span>
+                    <div className="flex items-center justify-center">
+                      <span 
+                        className="flex items-center justify-center w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500 text-rose-500 font-black text-sm font-mono shadow-sm"
+                        title={`ضاعت ${p.missedRakats} ركعة بالمسجد`}
+                      >
+                        {p.missedRakats}
+                      </span>
+                    </div>
                   );
                 }
 
                 // Prayed at home (0 points)
                 if (!p.inMosque) {
                   return (
-                    <span 
-                      className="inline-flex items-center justify-center px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 font-bold text-[10px]"
-                      title="صُلّيت في البيت (0 نقطة)"
-                    >
-                      بيت (0)
-                    </span>
+                    <div className="flex items-center justify-center">
+                      <span 
+                        className="flex items-center justify-center px-1.5 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 font-bold text-[10px]"
+                        title="صُلّيت في البيت (0 نقطة)"
+                      >
+                        بيت (0)
+                      </span>
+                    </div>
                   );
                 }
 
-                return <span>-</span>;
+                return (
+                  <div className="flex items-center justify-center">
+                    <span className="text-slate-400">-</span>
+                  </div>
+                );
               };
 
               const dayScore = row.dayScore;
               const hasData = Boolean(rec && dayScore && dayScore.totalFardCompleted > 0);
+              const isToday = row.dateKey === todayKey;
+              const missedCount = isToday
+                ? Object.values(prayers).reduce((acc, p) => acc + (p?.inMosque ? (p?.missedRakats || 0) : 0), 0)
+                : (dayScore?.totalFardMissedRakats || 0);
 
               return (
                 <tr 
                   key={row.dateKey}
                   className={`hover:bg-slate-50 dark:hover:bg-[#141B30] transition-colors ${
-                    row.dateKey === todayKey ? 'bg-amber-500/5 font-bold' : ''
+                    isToday ? 'bg-amber-500/5 font-bold' : ''
                   }`}
                 >
                   {/* Date column */}
-                  <td className="py-2.5 px-3 whitespace-nowrap font-bold text-slate-800 dark:text-white">
-                    <span className="font-mono text-amber-600 dark:text-amber-400 ml-1">{row.dayNumber}</span>
+                  <td className="py-2.5 px-3 whitespace-nowrap font-bold text-slate-800 dark:text-white text-right">
+                    <span className="font-mono text-amber-600 dark:text-amber-400 ml-1.5">{row.dayNumber}</span>
                     <span>{row.dayName}</span>
-                    {row.dateKey === todayKey && (
-                      <span className="mr-1.5 px-1.5 py-0.2 rounded text-[9px] bg-amber-500 text-black font-black">
+                    {isToday && (
+                      <span className="inline-block mr-2 px-1.5 py-0.5 rounded text-[10px] bg-amber-500 text-black font-black align-middle shadow-sm">
                         اليوم
                       </span>
                     )}
                   </td>
 
-                  {/* 5 Prayers */}
-                  <td className="py-2 px-2 text-center">{renderPrayerCell('fajr')}</td>
-                  <td className="py-2 px-2 text-center">{renderPrayerCell('dhuhr')}</td>
-                  <td className="py-2 px-2 text-center">{renderPrayerCell('asr')}</td>
-                  <td className="py-2 px-2 text-center">{renderPrayerCell('maghrib')}</td>
-                  <td className="py-2 px-2 text-center">{renderPrayerCell('isha')}</td>
+                  {/* Certificate column */}
+                  <td className="py-2 px-2 text-center">
+                    {dayScore?.isGoldTier ? (
+                      <div className="flex items-center justify-center">
+                        <span 
+                          className="px-2 py-0.5 rounded-md text-[10px] font-black bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/80 text-amber-600 dark:text-amber-400 inline-flex items-center gap-1 shadow-sm"
+                          title="الشهادة الذهبية: إدراك جميع الصلوات بتكبيرة الإحرام بالمسجد (500/500)"
+                        >
+                          <Award className="w-3 h-3 text-amber-500 shrink-0" />
+                          <span>ذهبية</span>
+                        </span>
+                      </div>
+                    ) : dayScore?.isSilverTier ? (
+                      <div className="flex items-center justify-center">
+                        <span 
+                          className="px-2 py-0.5 rounded-md text-[10px] font-black bg-slate-200/80 dark:bg-slate-700/80 border border-slate-400/80 text-slate-700 dark:text-slate-300 inline-flex items-center gap-1 shadow-sm"
+                          title="الشهادة الفضية: إدراك كافة صلوات وركعات المسجد كاملة (0 ركعة فائتة)"
+                        >
+                          <Shield className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span>فضية</span>
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-slate-400 dark:text-slate-600 font-mono text-xs">-</span>
+                    )}
+                  </td>
+
+                  {/* 5 Prayers with Interactive Dialog Click */}
+                  <td 
+                    onClick={() => setEditingCell({ row, prayerId: 'fajr' })}
+                    className="py-2 px-1 text-center cursor-pointer hover:bg-amber-500/15 active:scale-90 transition-all rounded-md group"
+                    title="انقر لتعديل صلاة الفجر بنقرة واحدة"
+                  >
+                    {renderPrayerCell('fajr')}
+                  </td>
+                  <td 
+                    onClick={() => setEditingCell({ row, prayerId: 'dhuhr' })}
+                    className="py-2 px-1 text-center cursor-pointer hover:bg-amber-500/15 active:scale-90 transition-all rounded-md group"
+                    title="انقر لتعديل صلاة الظهر بنقرة واحدة"
+                  >
+                    {renderPrayerCell('dhuhr')}
+                  </td>
+                  <td 
+                    onClick={() => setEditingCell({ row, prayerId: 'asr' })}
+                    className="py-2 px-1 text-center cursor-pointer hover:bg-amber-500/15 active:scale-90 transition-all rounded-md group"
+                    title="انقر لتعديل صلاة العصر بنقرة واحدة"
+                  >
+                    {renderPrayerCell('asr')}
+                  </td>
+                  <td 
+                    onClick={() => setEditingCell({ row, prayerId: 'maghrib' })}
+                    className="py-2 px-1 text-center cursor-pointer hover:bg-amber-500/15 active:scale-90 transition-all rounded-md group"
+                    title="انقر لتعديل صلاة المغرب بنقرة واحدة"
+                  >
+                    {renderPrayerCell('maghrib')}
+                  </td>
+                  <td 
+                    onClick={() => setEditingCell({ row, prayerId: 'isha' })}
+                    className="py-2 px-1 text-center cursor-pointer hover:bg-amber-500/15 active:scale-90 transition-all rounded-md group"
+                    title="انقر لتعديل صلاة العشاء بنقرة واحدة"
+                  >
+                    {renderPrayerCell('isha')}
+                  </td>
 
                   {/* Fard Score */}
-                  <td className="py-2 px-3 text-center font-mono font-black">
+                  <td className="py-2 px-2 text-center font-mono font-black">
                     {hasData ? (
-                      <span className={dayScore.totalFardScore >= 400 ? 'text-emerald-500' : 'text-amber-500'}>
-                        {dayScore.totalFardScore}
-                      </span>
+                      <div className="flex items-center justify-center gap-1">
+                        <span className={dayScore.totalFardScore >= 400 ? 'text-emerald-500' : 'text-amber-500'}>
+                          {dayScore.totalFardScore}
+                        </span>
+                        {dayScore.isGoldTier && (
+                          <span title="الشهادة الذهبية (500/500)" className="text-xs">🏆</span>
+                        )}
+                        {dayScore.isSilverTier && (
+                          <span title="الشهادة الفضية (0 ركعة فائتة)" className="text-xs">🥈</span>
+                        )}
+                      </div>
                     ) : (
                       <span className="text-slate-400">-</span>
                     )}
                   </td>
 
                   {/* Total Missed */}
-                  <td className="py-2 px-3 text-center font-mono font-bold">
-                    {hasData && dayScore.totalFardMissedRakats > 0 ? (
+                  <td className="py-2 px-2 text-center font-mono font-bold">
+                    {missedCount > 0 ? (
                       <span className="text-rose-500">
-                        {dayScore.totalFardMissedRakats}
+                        {missedCount}
                       </span>
                     ) : (
                       <span className="text-slate-400">0</span>
@@ -399,6 +534,19 @@ export default function ExportPage({ refreshTrigger }) {
           </tbody>
         </table>
       </div>
+
+      {/* Prayer Quick Edit Dialog */}
+      <PrayerEditDialog
+        isOpen={Boolean(editingCell)}
+        onClose={() => setEditingCell(null)}
+        cellData={editingCell}
+        onSaveSuccess={(updatedRecord) => {
+          setMonthRecords((prev) => ({
+            ...prev,
+            [updatedRecord.date]: updatedRecord,
+          }));
+        }}
+      />
 
     </div>
   );

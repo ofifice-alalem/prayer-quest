@@ -623,7 +623,7 @@ export default function DayDrawer({ isOpen, onClose, dateKey, onRecordUpdated })
                           <div className={`w-4 h-4 rounded shrink-0 flex items-center justify-center text-[10px] ${
                             isDone ? 'bg-amber-500 text-black font-black' : 'border border-slate-300 dark:border-slate-700'
                           }`}>
-                            {isDone ? '✓' : ''}
+                            {isDone && <Check className="w-3 h-3 stroke-[3]" />}
                           </div>
                         </button>
                       );

@@ -56,7 +56,7 @@ export default function App() {
       const computedLevel = Math.max(1, Math.floor(points / 1000) + 1);
       setLevel(computedLevel);
 
-      // Streak calculation (continuous days ending today or yesterday)
+      // Streak calculation
       const dateSet = new Set(
         records
           .filter((r) => {
@@ -70,7 +70,6 @@ export default function App() {
       const today = new Date();
       let checkDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-      // If today not prayed yet, check from yesterday
       const todayKey = getTodayKey();
       if (!dateSet.has(todayKey)) {
         checkDate.setDate(checkDate.getDate() - 1);
@@ -125,10 +124,10 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen relative flex flex-col transition-colors duration-300 ${
-      isDark ? 'bg-game-bg text-slate-100' : 'bg-slate-50 text-slate-900'
+    <div className={`min-h-screen relative flex flex-col font-tajawal transition-colors duration-300 ${
+      isDark ? 'bg-[#0A0E17] text-slate-100' : 'bg-[#F4F6FA] text-slate-900'
     }`}>
-      {/* Background High-Clarity Islamic Girih Pattern */}
+      {/* Ambient Gaming Lighting (No wallpapers) */}
       <IslamicPattern isDark={isDark} />
 
       {/* Hidden File Input for Backup Import */}
@@ -140,27 +139,31 @@ export default function App() {
         className="hidden"
       />
 
-      {/* Steam HUD Top Navbar */}
+      {/* Sleek Gaming Top Navigation Bar */}
       <Navbar
         isDark={isDark}
         setIsDark={setIsDark}
         totalPoints={totalPoints}
         streakDays={streakDays}
         level={level}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        <div className="flex flex-col lg:flex-row items-start gap-8">
+      <main className="flex-1 max-w-[1500px] w-full mx-auto px-4 sm:px-6 py-6 relative z-10">
+        <div className="flex flex-col lg:flex-row items-start gap-6">
           
           {/* Gaming Client Sidebar */}
           <Sidebar
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             onImportClick={() => fileInputRef.current?.click()}
+            level={level}
+            totalPoints={totalPoints}
           />
 
-          {/* Active View / Page */}
+          {/* Active View */}
           <div className="flex-1 w-full min-w-0">
             {activeTab === 'today' && (
               <TodayPage onRecordUpdated={handleRecordUpdated} />
@@ -183,12 +186,9 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full border-t border-slate-200 dark:border-game-border/60 py-6 text-center text-xs text-slate-500 dark:text-slate-500 relative z-10">
+      <footer className="w-full border-t border-slate-200 dark:border-[#1E2842] py-5 text-center text-xs text-slate-500 relative z-10">
         <p>
-          مَـتـتـبّـع الـصَّـلَـوَات اليومية © {new Date().getFullYear()} • Daily Prayer Quest
-        </p>
-        <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-600">
-          منصة ألعاب إسلامية مبنية بـ React & Tailwind • متوافقة بالكامل مع GitHub Pages
+          مَـتـتـبّـع الـصَّـلَـوَات • DAILY PRAYER QUEST © {new Date().getFullYear()}
         </p>
       </footer>
     </div>

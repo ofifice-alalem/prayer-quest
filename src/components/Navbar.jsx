@@ -7,78 +7,123 @@ export default function Navbar({
   totalPoints = 0,
   streakDays = 0,
   level = 1,
+  activeTab,
+  setActiveTab,
 }) {
   return (
-    <header className="sticky top-0 z-30 w-full steam-glass border-b border-slate-200 dark:border-game-border/60 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <header className="sticky top-0 z-30 w-full bg-white/95 dark:bg-[#0D121F]/90 backdrop-blur-xl border-b border-slate-200 dark:border-[#1E2842] transition-colors duration-300">
+      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 h-18 py-3 flex items-center justify-between gap-4">
         
-        {/* Brand / Logo (Steam HUD Islamic Style) */}
-        <div className="flex items-center gap-3.5">
-          <div className="relative group">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-game-orange via-amber-500 to-amber-600 dark:to-game-surface border-2 border-game-orange/60 flex items-center justify-center shadow-glow-orange transition-transform duration-300 group-hover:scale-105">
-              <span className="text-2xl select-none">🕌</span>
+        {/* Right: Brand with Gray Taqniya Logo */}
+        <div className="flex items-center gap-3.5 shrink-0">
+          <div className="relative group flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#131A2D] border border-slate-200 dark:border-[#222E4D] flex items-center justify-center p-1.5 shadow-sm">
+              <img
+                src="./assets/taqniya_logo.png"
+                alt="تقنية"
+                className="w-full h-full object-contain filter grayscale opacity-70 group-hover:opacity-100 transition-opacity"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentElement.innerHTML = '<span class="text-sm font-black text-amber-500">ت</span>';
+                }}
+              />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-game-bg"></div>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-                مَـتـتـبّـع <span className="text-game-orange">الـصَّـلَـوَات</span>
-              </h1>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-game-orange/15 text-game-orange border border-game-orange/30">
-                Quest HUD
-              </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">
+                  مَـتـتـبّـع <span className="text-amber-500">الـصَّـلَـوَات</span>
+                </span>
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-mono">
+                  ELITE QUEST
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium hidden md:block">
+                حَصّن صلواتك في المسجد وأدرك تكبيرة الإحرام
+              </p>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold hidden sm:block">
-              حَصّن صلواتك في المسجد وأدرك تكبيرة الإحرام
-            </p>
           </div>
         </div>
 
-        {/* Gamer Status Badges & Controls */}
-        <div className="flex items-center gap-2.5 sm:gap-4">
+        {/* Center: Gaming Sub-Nav Links */}
+        <div className="hidden lg:flex items-center gap-1 bg-slate-100 dark:bg-[#121829] p-1 rounded-xl border border-slate-200 dark:border-[#1E2842]">
+          <button
+            onClick={() => setActiveTab('today')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              activeTab === 'today'
+                ? 'bg-amber-500 text-black font-black shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#182138]'
+            }`}
+          >
+            نظرة عامة
+          </button>
+          <button
+            onClick={() => setActiveTab('calendar')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              activeTab === 'calendar'
+                ? 'bg-amber-500 text-black font-black shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#182138]'
+            }`}
+          >
+            التقويم
+          </button>
+          <button
+            onClick={() => setActiveTab('missed')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              activeTab === 'missed'
+                ? 'bg-amber-500 text-black font-black shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#182138]'
+            }`}
+          >
+            الركعات الفائتة
+          </button>
+          <button
+            onClick={() => setActiveTab('export')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              activeTab === 'export'
+                ? 'bg-amber-500 text-black font-black shadow-sm'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-[#182138]'
+            }`}
+          >
+            السجل والتصدير
+          </button>
+        </div>
+
+        {/* Left: Gamer HUD Status & Points Pill */}
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
           
-          {/* Level Badge */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-game-card/80 border border-slate-200 dark:border-game-border shadow-sm hover:border-game-orange/60 transition-colors">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-amber-600 to-game-orange flex items-center justify-center font-black text-xs text-white shadow-sm">
-              {level}
-            </div>
-            <div className="text-right hidden sm:block">
-              <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">المستوى</div>
-              <div className="text-xs font-black text-amber-600 dark:text-amber-400">فارس المساجد</div>
-            </div>
+          {/* Points Pill */}
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black font-black text-xs shadow-md">
+            <Trophy className="w-4 h-4 text-black" />
+            <span className="font-mono text-sm tracking-wide">{totalPoints.toLocaleString()}</span>
+            <span className="text-[10px] font-extrabold uppercase">نقطة</span>
           </div>
 
           {/* Daily Streak */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-game-card/80 border border-slate-200 dark:border-game-border text-game-orange font-bold text-sm shadow-sm">
-            <Flame className="w-4 h-4 text-orange-500 fill-orange-500 animate-pulse" />
-            <span className="text-slate-900 dark:text-slate-100 font-black">{streakDays}</span>
-            <span className="text-xs text-slate-500 dark:text-slate-400 hidden md:inline">يوم متتالي</span>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#121829] border border-slate-200 dark:border-[#1E2842] text-amber-600 dark:text-amber-500 font-bold text-xs">
+            <Flame className="w-4 h-4 fill-amber-500 text-amber-500 animate-pulse" />
+            <span className="text-slate-900 dark:text-white font-mono">{streakDays}</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:inline">أيام</span>
           </div>
 
-          {/* Total Points Badge */}
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-game-orange/15 to-amber-500/10 border border-game-orange/40 shadow-glow-orange">
-            <Trophy className="w-4 h-4 text-game-orange fill-game-orange/30" />
-            <div className="text-right">
-              <span className="text-sm sm:text-base font-black text-game-orange tracking-wide">
-                {totalPoints.toLocaleString()}
-              </span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 mr-1 hidden sm:inline font-bold">نقطة</span>
+          {/* Level Badge */}
+          <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-[#121829] border border-slate-200 dark:border-[#1E2842]">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center font-black text-[11px] text-white">
+              {level}
             </div>
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">مستوى {level}</span>
           </div>
 
-          {/* Theme Toggle (Dark / Light) */}
+          {/* Theme Toggle */}
           <button
             onClick={() => setIsDark(!isDark)}
             aria-label="تبديل المظهر"
-            className="p-2.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-game-card/80 dark:hover:bg-game-cardHover border border-slate-200 dark:border-game-border hover:border-game-orange/60 text-slate-700 dark:text-slate-300 hover:text-game-orange transition-all duration-200 active:scale-95 shadow-sm"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#121829] dark:hover:bg-[#1A223B] border border-slate-200 dark:border-[#1E2842] text-slate-700 dark:text-slate-300 hover:text-amber-500 transition-all active:scale-95 shadow-sm"
             title={isDark ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الداكن'}
           >
             {isDark ? (
-              <Sun className="w-5 h-5 text-amber-400 animate-spin-slow" />
+              <Sun className="w-4 h-4 text-amber-400" />
             ) : (
-              <Moon className="w-5 h-5 text-slate-700" />
+              <Moon className="w-4 h-4 text-slate-600" />
             )}
           </button>
 

@@ -3,13 +3,9 @@ import {
   ChevronRight, 
   ChevronLeft, 
   Calendar as CalendarIcon, 
-  Lock, 
-  Trophy, 
-  Sparkles, 
-  AlertCircle,
-  CheckCircle2
+  Lock
 } from 'lucide-react';
-import { generateMonthGrid, ARABIC_MONTHS, ARABIC_DAYS, getTodayKey } from '../utils/dateUtils';
+import { generateMonthGrid, ARABIC_MONTHS, ARABIC_DAYS } from '../utils/dateUtils';
 import { getMonthRecords } from '../services/db';
 import { calculateDayScore } from '../services/scoring';
 import DayDrawer from '../components/DayDrawer';
@@ -80,38 +76,38 @@ export default function CalendarPage({ refreshTrigger }) {
     <div className="space-y-6">
       
       {/* Calendar Header Card */}
-      <div className="steam-glass rounded-2xl p-5 sm:p-6 shadow-steam-card flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="gaming-card rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-[#1E2842] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-game-orange/15 border border-game-orange/40 flex items-center justify-center text-game-orange shadow-glow-orange">
+          <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500">
             <CalendarIcon className="w-6 h-6" />
           </div>
           <div className="text-right">
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
               تقويم شهر {ARABIC_MONTHS[currentMonth - 1]} {currentYear}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
-              اضغط على أي يوم لعرض تفاصيل الصلوات والنقاط، والتعديل عبر القائمة الجانبية
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              اضغط على أي يوم لعرض وتعديل صلواته عبر القائمة الجانبية السريعة
             </p>
           </div>
         </div>
 
         {/* Month Navigation Controls */}
-        <div className="flex items-center gap-2 bg-slate-100 dark:bg-game-surface/90 p-1.5 rounded-xl border border-slate-200 dark:border-game-border">
+        <div className="flex items-center gap-2 bg-slate-100 dark:bg-[#0E1424] p-1.5 rounded-xl border border-slate-200 dark:border-[#1E2842]">
           <button
             onClick={handlePrevMonth}
-            className="p-2 rounded-lg bg-white dark:bg-game-card hover:bg-slate-50 dark:hover:bg-game-cardHover border border-slate-200 dark:border-game-border text-slate-700 dark:text-slate-200 hover:text-game-orange transition-colors"
+            className="p-2 rounded-lg bg-white dark:bg-[#141B30] hover:bg-slate-200 dark:hover:bg-[#1E2842] text-slate-700 dark:text-slate-200 hover:text-amber-500 transition-colors shadow-sm"
             title="الشهر السابق"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
 
-          <span className="px-4 text-sm font-black text-slate-800 dark:text-slate-200 min-w-32 text-center">
+          <span className="px-4 text-xs font-black text-slate-900 dark:text-white min-w-32 text-center font-mono">
             {ARABIC_MONTHS[currentMonth - 1]} {currentYear}
           </span>
 
           <button
             onClick={handleNextMonth}
-            className="p-2 rounded-lg bg-white dark:bg-game-card hover:bg-slate-50 dark:hover:bg-game-cardHover border border-slate-200 dark:border-game-border text-slate-700 dark:text-slate-200 hover:text-game-orange transition-colors"
+            className="p-2 rounded-lg bg-white dark:bg-[#141B30] hover:bg-slate-200 dark:hover:bg-[#1E2842] text-slate-700 dark:text-slate-200 hover:text-amber-500 transition-colors shadow-sm"
             title="الشهر القادم"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -124,7 +120,7 @@ export default function CalendarPage({ refreshTrigger }) {
         {ARABIC_DAYS.map((dayName, idx) => (
           <div 
             key={idx}
-            className="py-2.5 rounded-xl bg-slate-100 dark:bg-game-surface/80 border border-slate-200 dark:border-game-border text-xs font-black text-slate-700 dark:text-slate-300"
+            className="py-2.5 rounded-xl bg-slate-100 dark:bg-[#121829] border border-slate-200 dark:border-[#1E2842] text-xs font-black text-slate-700 dark:text-slate-300"
           >
             {dayName}
           </div>
@@ -138,7 +134,7 @@ export default function CalendarPage({ refreshTrigger }) {
             return (
               <div 
                 key={day.id || idx}
-                className="min-h-24 sm:min-h-28 rounded-2xl bg-slate-50/50 dark:bg-game-card/20 border border-slate-200/50 dark:border-game-border/30 opacity-40"
+                className="min-h-24 sm:min-h-28 rounded-2xl bg-slate-100/40 dark:bg-[#0E1424]/40 border border-slate-200/40 dark:border-[#1E2842]/20 opacity-30"
               />
             );
           }
@@ -152,12 +148,12 @@ export default function CalendarPage({ refreshTrigger }) {
             return (
               <div
                 key={day.dateKey}
-                className="min-h-24 sm:min-h-28 rounded-2xl bg-slate-100/50 dark:bg-game-surface/30 border border-slate-200 dark:border-game-border/40 p-2.5 sm:p-3 flex flex-col justify-between opacity-50 cursor-not-allowed select-none"
+                className="min-h-24 sm:min-h-28 rounded-2xl bg-slate-100/60 dark:bg-[#0A0E1A]/60 border border-slate-200 dark:border-[#1E2842]/30 p-2.5 sm:p-3 flex flex-col justify-between opacity-50 cursor-not-allowed select-none"
                 title="يوم مستقبلي - مقفل"
               >
-                <div className="flex items-center justify-between text-xs font-bold text-slate-400 dark:text-slate-500">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-400 dark:text-slate-600">
                   <span>{day.dayNumber}</span>
-                  <Lock className="w-3.5 h-3.5" />
+                  <Lock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600" />
                 </div>
                 <div className="text-[10px] text-center text-slate-400 dark:text-slate-600 font-semibold">
                   قادم
@@ -173,20 +169,22 @@ export default function CalendarPage({ refreshTrigger }) {
               onClick={() => handleDayClick(day)}
               className={`min-h-24 sm:min-h-28 rounded-2xl p-2.5 sm:p-3 text-right flex flex-col justify-between transition-all duration-200 border group relative overflow-hidden active:scale-95 ${
                 day.isToday 
-                  ? 'bg-gradient-to-br from-amber-50 to-orange-50 dark:from-game-card dark:to-game-surface border-game-orange ring-2 ring-game-orange/30 shadow-glow-orange' 
-                  : 'steam-glass hover:border-game-orange/70 hover:shadow-md'
+                  ? 'bg-amber-500/10 border-amber-500 ring-2 ring-amber-500/40 shadow-md' 
+                  : 'gaming-card hover:border-amber-500/80'
               }`}
             >
               {/* Day Number and Today Tag */}
               <div className="flex items-center justify-between w-full">
-                <span className={`text-sm sm:text-base font-black ${
-                  day.isToday ? 'text-game-orange' : 'text-slate-900 dark:text-white'
+                <span className={`text-sm sm:text-base font-black font-mono ${
+                  day.isToday 
+                    ? 'text-amber-600 dark:text-amber-400' 
+                    : 'text-slate-900 dark:text-white'
                 }`}>
                   {day.dayNumber}
                 </span>
 
                 {day.isToday && (
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-game-orange text-white">
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500 text-black">
                     اليوم
                   </span>
                 )}
@@ -196,33 +194,33 @@ export default function CalendarPage({ refreshTrigger }) {
               <div className="w-full space-y-1">
                 {hasData ? (
                   <>
-                    <div className="flex items-center justify-between text-[11px] font-black">
-                      <span className="text-game-orange">{score.totalFardScore}</span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400">/500</span>
+                    <div className="flex items-center justify-between text-[11px] font-black font-mono">
+                      <span className="text-amber-600 dark:text-amber-400">{score.totalFardScore}</span>
+                      <span className="text-[10px] text-slate-400">/500</span>
                     </div>
 
-                    <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-game-bg overflow-hidden">
+                    <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-[#0A0E1A] overflow-hidden">
                       <div 
                         className={`h-full rounded-full ${
                           score.fardPercentage >= 80 
-                            ? 'bg-game-green' 
+                            ? 'bg-emerald-500' 
                             : score.fardPercentage >= 50 
-                            ? 'bg-game-orange' 
-                            : 'bg-game-red'
+                            ? 'bg-amber-500' 
+                            : 'bg-rose-500'
                         }`}
                         style={{ width: `${score.fardPercentage}%` }}
                       />
                     </div>
 
                     {score.totalFardMissedRakats > 0 && (
-                      <div className="text-[9px] font-bold text-game-red truncate">
+                      <div className="text-[9px] font-bold text-rose-500 truncate">
                         ضاعت {score.totalFardMissedRakats} ركعة
                       </div>
                     )}
                   </>
                 ) : (
-                  <div className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold group-hover:text-game-orange transition-colors">
-                    لم يُسجل بعد
+                  <div className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold group-hover:text-amber-500 transition-colors">
+                    سجّل الصلوات
                   </div>
                 )}
               </div>
@@ -231,7 +229,7 @@ export default function CalendarPage({ refreshTrigger }) {
         })}
       </div>
 
-      {/* Side Drawer Component */}
+      {/* Side Drawer Component (Rendered via Portal to document.body) */}
       <DayDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}

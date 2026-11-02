@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Trophy, 
-  Flame, 
-  Sunrise, 
-  Sun, 
-  SunMedium, 
-  Sunset, 
-  Moon, 
-  CheckCircle2, 
   Sparkles, 
+  Calendar, 
+  CheckCircle2, 
   Save, 
-  Check, 
-  X,
-  Home,
-  Star
+  Moon, 
+  Sun, 
+  Sunset, 
+  Sunrise, 
+  SunMedium, 
+  Target, 
+  Shield, 
+  Star,
+  Users,
+  Home
 } from 'lucide-react';
 import { PRAYERS_CONFIG, SUNNAH_CONFIG, calculatePrayerScore, calculateDayScore } from '../services/scoring';
 import { getDayRecord, saveDayRecord } from '../services/db';
@@ -51,10 +52,6 @@ export default function TodayPage({ onRecordUpdated }) {
     }
   };
 
-  const dayScore = record ? calculateDayScore(record) : null;
-
-  // DIRECT ONE-CLICK ACTION HANDLERS
-  
   // 1. One-click Takbirat Al-Ihram (100% Points)
   const handleToggleTakbirah = (prayerId) => {
     setRecord((prev) => {
@@ -62,13 +59,13 @@ export default function TodayPage({ onRecordUpdated }) {
       const current = { ...(prayers[prayerId] || {}) };
 
       if (current.caughtTakbirah && current.inMosque && current.prayed) {
-        // Deselect -> reset to unprayed
+        // Toggle OFF
         current.prayed = false;
         current.inMosque = false;
         current.caughtTakbirah = false;
         current.missedRakats = 0;
       } else {
-        // Select -> 100% full mosque prayer
+        // Toggle ON (Full 100% Points)
         current.prayed = true;
         current.inMosque = true;
         current.caughtTakbirah = true;
@@ -86,12 +83,11 @@ export default function TodayPage({ onRecordUpdated }) {
       const prayers = { ...prev.prayers };
       const current = { ...(prayers[prayerId] || {}) };
 
-      if (current.prayed && current.inMosque && !current.caughtTakbirah && (current.missedRakats || 0) === 0) {
-        // Deselect
+      if (current.inMosque && current.prayed && !current.caughtTakbirah && current.missedRakats === 0) {
+        // Toggle off
         current.prayed = false;
         current.inMosque = false;
       } else {
-        // 80% Full Rak'ahs in mosque
         current.prayed = true;
         current.inMosque = true;
         current.caughtTakbirah = false;
@@ -103,18 +99,18 @@ export default function TodayPage({ onRecordUpdated }) {
     });
   };
 
-  // 3. One-click Home Prayer (80% / Base)
+  // 3. Home Prayer (STRICTLY 0 POINTS - INCENTIVE FOR MOSQUE)
   const handleSetHomePrayer = (prayerId) => {
     setRecord((prev) => {
       const prayers = { ...prev.prayers };
       const current = { ...(prayers[prayerId] || {}) };
 
       if (current.prayed && !current.inMosque) {
-        // Deselect
+        // Toggle off
         current.prayed = false;
       } else {
         current.prayed = true;
-        current.inMosque = false;
+        current.inMosque = false; // HOME PRAYER = 0 POINTS
         current.caughtTakbirah = false;
         current.missedRakats = 0;
       }
@@ -124,19 +120,18 @@ export default function TodayPage({ onRecordUpdated }) {
     });
   };
 
-  // 4. Direct Missed Rak'ahs Setter (e.g. lost 1 or 2 rak'ahs)
+  // 4. Direct Missed Rak'ahs Setter in mosque
   const handleSetMissedRakats = (prayerId, missedCount) => {
     setRecord((prev) => {
       const prayers = { ...prev.prayers };
       const current = { ...(prayers[prayerId] || {}) };
 
-      if (current.missedRakats === missedCount && current.prayed) {
-        // Reset to 0 missed
+      if (current.missedRakats === missedCount && current.prayed && current.inMosque) {
         current.missedRakats = 0;
       } else {
         current.prayed = true;
-        current.inMosque = true; // usually happened in mosque congregation
-        current.caughtTakbirah = false; // missing rak'ah means takbirah was missed
+        current.inMosque = true;
+        current.caughtTakbirah = false;
         current.missedRakats = missedCount;
       }
 
@@ -145,7 +140,6 @@ export default function TodayPage({ onRecordUpdated }) {
     });
   };
 
-  // Sunnah Toggle
   const handleSunnahToggle = (sunnahId) => {
     setRecord((prev) => {
       const sunnah = { ...prev.sunnah };
@@ -165,14 +159,14 @@ export default function TodayPage({ onRecordUpdated }) {
 
       if (dayScore && dayScore.totalFardScore >= 400) {
         confetti({
-          particleCount: 70,
-          spread: 80,
+          particleCount: 80,
+          spread: 70,
           origin: { y: 0.6 },
-          colors: ['#FF7A00', '#10B981', '#38BDF8', '#F59E0B'],
+          colors: ['#F59E0B', '#10B981', '#0EA5E9', '#EC4899'],
         });
       }
     } catch (err) {
-      alert('حدث خطأ أثناء حفظ صلوات اليوم: ' + err.message);
+      alert('حدث خطأ أثناء حفظ السجل: ' + err.message);
     } finally {
       setSaving(false);
     }
@@ -180,80 +174,98 @@ export default function TodayPage({ onRecordUpdated }) {
 
   if (loading || !record) {
     return (
-      <div className="py-24 text-center text-slate-500 dark:text-slate-400">
+      <div className="py-24 text-center text-slate-500 font-bold">
         جاري تحميل صلوات اليوم...
       </div>
     );
   }
 
+  const dayScore = calculateDayScore(record);
+
   return (
     <div className="space-y-6">
       
-      {/* Hero / Daily Quest HUD Banner */}
-      <div className="steam-glass rounded-2xl p-5 sm:p-7 shadow-steam-card relative overflow-hidden transition-all duration-300">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-game-orange/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
+      {/* TOURNAMENT-STYLE HERO BANNER */}
+      <div className="relative rounded-3xl p-6 sm:p-8 overflow-hidden bg-gradient-to-r from-[#171330] via-[#1F1742] to-[#111933] border border-[#2B2353] shadow-xl text-white">
+        {/* Ambient Top Glow */}
+        <div 
+          className="absolute -top-24 right-1/4 w-96 h-96 rounded-full blur-[100px] pointer-events-none opacity-30"
+          style={{ background: 'radial-gradient(circle, #F59E0B, transparent 70%)' }}
+        />
 
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-game-orange">
-              <span className="w-2.5 h-2.5 rounded-full bg-game-orange animate-pulse"></span>
-              <span>المهمة اليومية النشطة</span>
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
+                QUEST ACTIVE • {formatArabicDate(todayKey)}
+              </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
-              صلوات {formatArabicDate(todayKey)}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
-              سجّل صلواتك بنقرة واحدة سريعة لحصد النقاط ورفع تصنيفك الإيماني
+
+            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+              تَحَدّي فُـرْسَـان الـمَـسَـاجِـد
+            </h1>
+
+            <p className="text-xs sm:text-sm text-purple-100/90 font-medium leading-relaxed">
+              أدرك تكبيرة الإحرام في المسجد لتسجيل 100% كاملة. نقاط الفرائض مخصصة حصراً لصلوات المسجد.
             </p>
+
+            {/* Gaming Stats Row */}
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-3 text-xs font-bold text-white">
+              <div className="flex items-center gap-2 bg-black/30 px-3.5 py-2 rounded-xl backdrop-blur-sm border border-white/10">
+                <Target className="w-4 h-4 text-amber-400" />
+                <span className="font-mono text-amber-400 font-black">{dayScore.totalFardScore}</span>
+                <span className="text-purple-200 text-[11px]">/ 500 نقطة فريضة</span>
+              </div>
+
+              <div className="flex items-center gap-2 bg-black/30 px-3.5 py-2 rounded-xl backdrop-blur-sm border border-white/10">
+                <Sparkles className="w-4 h-4 text-pink-400" />
+                <span className="font-mono text-pink-400 font-black">{dayScore.completedSunnahCount}</span>
+                <span className="text-purple-200 text-[11px]">من 6 نوافل مؤداة</span>
+              </div>
+
+              <div className="flex items-center gap-2 bg-black/30 px-3.5 py-2 rounded-xl backdrop-blur-sm border border-white/10">
+                <Shield className="w-4 h-4 text-emerald-400" />
+                <span className="text-emerald-400 font-black">{dayScore.totalFardPrayedInMosque}</span>
+                <span className="text-purple-200 text-[11px]">صلوات في المسجد</span>
+              </div>
+            </div>
           </div>
 
-          {/* Quick Score Meter */}
-          <div className="w-full md:w-auto flex items-center justify-between md:justify-end gap-4 bg-slate-100 dark:bg-game-surface/90 px-4 py-3 rounded-xl border border-slate-200 dark:border-game-border">
-            <div className="text-right">
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">نقاط الفرائض</div>
-              <div className="text-xl sm:text-2xl font-black text-game-orange">
-                {dayScore.totalFardScore} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">/ 500</span>
-              </div>
+          {/* Quick Level Badge */}
+          <div className="hidden lg:flex flex-col items-center justify-center p-5 rounded-2xl bg-black/40 border border-white/20 backdrop-blur-md text-center min-w-[170px]">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center shadow-lg mb-2">
+              <Trophy className="w-8 h-8 text-black" />
             </div>
-
-            <div className="h-8 w-px bg-slate-300 dark:bg-game-border"></div>
-
-            <div className="text-right">
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">نقاط النوافل</div>
-              <div className="text-xl sm:text-2xl font-black text-amber-500 dark:text-amber-400">
-                {dayScore.totalSunnahScore} <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">نقطة</span>
-              </div>
-            </div>
+            <div className="text-[10px] text-purple-200 uppercase tracking-widest font-black">تصنيف اليوم</div>
+            <div className="text-lg font-black text-amber-300 font-mono">{dayScore.fardPercentage}% إنجاز</div>
           </div>
         </div>
 
-        {/* Global Progress Bar */}
-        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-game-border/60">
-          <div className="flex items-center justify-between text-xs font-bold mb-2">
-            <span className="text-slate-700 dark:text-slate-300">مستوى إنجاز صلوات اليوم</span>
-            <span className="text-game-orange font-black">{dayScore.fardPercentage}%</span>
-          </div>
-          <div className="w-full h-3.5 rounded-full bg-slate-200 dark:bg-game-bg border border-slate-300 dark:border-game-border/80 overflow-hidden p-0.5">
+        {/* Global Progress Line */}
+        <div className="mt-6 pt-4 border-t border-white/15">
+          <div className="w-full h-2 rounded-full bg-black/50 overflow-hidden p-0.5">
             <div 
-              className="h-full rounded-full bg-gradient-to-r from-game-orange via-amber-500 to-emerald-500 transition-all duration-500 shadow-glow-orange"
+              className="h-full rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-emerald-400 transition-all duration-500"
               style={{ width: `${dayScore.fardPercentage}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Five Fard Prayers Grid with SIMPLIFIED ONE-CLICK UX */}
+      {/* FEATURED PRAYER CARDS */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-lg font-black text-slate-900 dark:text-white">الصلوات الخمس المفروضة</h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400">
-              اضغط مباشرة على «تكبيرة الإحرام» لتسجيل 100% فوراً، أو اختر الركعات الفائتة بنقرة واحدة
+            <h3 className="text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">
+              الصلوات المفروضة • FEATURED PRAYERS
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              تكبيرة الإحرام (100 نقطة) | جماعة كاملة (80 نقطة) | بالبيت (0 نقطة)
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {Object.keys(PRAYERS_CONFIG).map((prayerId) => {
             const config = PRAYERS_CONFIG[prayerId];
             const Icon = PRAYER_ICONS[prayerId] || Sun;
@@ -263,143 +275,124 @@ export default function TodayPage({ onRecordUpdated }) {
             const isTakbirah = Boolean(pData.caughtTakbirah && pData.inMosque && pData.prayed);
             const isFullMosque = Boolean(pData.inMosque && pData.prayed && !pData.caughtTakbirah && (pData.missedRakats || 0) === 0);
             const isHome = Boolean(pData.prayed && !pData.inMosque);
-            const hasMissed = Boolean(pData.prayed && (pData.missedRakats || 0) > 0);
+            const hasMissed = Boolean(pData.prayed && pData.inMosque && (pData.missedRakats || 0) > 0);
 
             return (
               <div 
                 key={prayerId}
-                className={`steam-glass rounded-2xl p-5 border transition-all duration-300 relative flex flex-col justify-between ${
+                className={`gaming-card rounded-2xl p-4 flex flex-col justify-between transition-all duration-200 relative ${
                   isTakbirah 
-                    ? 'border-emerald-500 dark:border-emerald-500/80 shadow-glow-green bg-emerald-50/60 dark:bg-emerald-950/20' 
+                    ? 'border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-950/20' 
                     : isFullMosque 
-                    ? 'border-cyan-500 dark:border-cyan-500/70 bg-cyan-50/50 dark:bg-cyan-950/20' 
+                    ? 'border-cyan-500 bg-cyan-500/10' 
+                    : isHome 
+                    ? 'border-amber-500/50 bg-amber-500/5' 
                     : hasMissed 
-                    ? 'border-amber-400 dark:border-amber-500/60' 
-                    : 'border-slate-200 dark:border-game-border hover:border-game-orange/50'
+                    ? 'border-rose-500/50 bg-rose-500/5' 
+                    : ''
                 }`}
               >
-                {/* Top Header */}
                 <div>
-                  <div className="flex items-center justify-between mb-3.5">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2.5 rounded-xl transition-colors ${
-                        isTakbirah 
-                          ? 'bg-emerald-500 text-white shadow-sm' 
-                          : 'bg-slate-100 dark:bg-game-surface text-game-orange border border-slate-200 dark:border-game-border'
-                      }`}>
-                        <Icon className="w-5 h-5" />
+                  {/* Card Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 rounded-xl bg-slate-100 dark:bg-[#0E1424] text-amber-500 border border-slate-200 dark:border-[#1E2842]">
+                        <Icon className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-base font-black text-slate-900 dark:text-white leading-tight">
-                          {config.name}
-                        </h4>
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
-                          {config.rakats} ركعات مفروضة
-                        </span>
+                        <h4 className="text-sm font-black text-slate-900 dark:text-white">{config.name}</h4>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{config.rakats} ركعات</span>
                       </div>
                     </div>
 
-                    {/* Score Tag */}
-                    <div className={`px-2.5 py-1 rounded-lg border font-black text-sm flex items-center gap-1 ${
-                      isTakbirah 
-                        ? 'bg-emerald-500/20 border-emerald-500 text-emerald-600 dark:text-emerald-400' 
-                        : pScore.score > 0 
-                        ? 'bg-game-orange/15 border-game-orange/40 text-game-orange' 
-                        : 'bg-slate-100 dark:bg-game-surface border-slate-200 dark:border-game-border text-slate-400'
-                    }`}>
-                      <span>{pScore.score}</span>
-                      <span className="text-[10px] text-slate-400">/100</span>
-                    </div>
+                    {/* Points Pill */}
+                    <span className="px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-[#0E1424] border border-slate-200 dark:border-[#1E2842] text-amber-600 dark:text-amber-400 font-mono font-black text-xs">
+                      {pScore.score} / 100
+                    </span>
                   </div>
 
-                  {/* 1. PRIMARY HERO BUTTON: TAKBIRAT AL-IHRAM (100% AUTO) */}
+                  {/* 1. HERO ACTION BUTTON: TAKBIRAT AL-IHRAM */}
+                  {/* UNSELECTED: Completely FLAT, muted neutral color. NO glowing gold! */}
+                  {/* SELECTED: Emerald Green with white text and glow! */}
                   <button
                     type="button"
                     onClick={() => handleToggleTakbirah(prayerId)}
-                    className={`w-full py-3 px-4 rounded-xl font-black text-xs sm:text-sm transition-all duration-200 flex items-center justify-between border shadow-sm active:scale-95 ${
+                    className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs transition-all flex items-center justify-between border active:scale-95 mb-2.5 ${
                       isTakbirah
-                        ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-500 shadow-glow-green'
-                        : 'bg-slate-100 hover:bg-emerald-50 dark:bg-game-surface dark:hover:bg-game-card text-slate-800 dark:text-slate-200 border-slate-200 dark:border-game-border hover:border-emerald-500/80 hover:text-emerald-600 dark:hover:text-emerald-400'
+                        ? 'bg-emerald-600 border-emerald-500 text-white shadow-md shadow-emerald-600/30 font-black'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 dark:bg-[#131B2E] dark:hover:bg-[#1A2644] dark:text-slate-300 dark:border-[#222E4D]'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Star className={`w-4 h-4 ${isTakbirah ? 'fill-white text-white' : 'text-amber-500'}`} />
+                    <div className="flex items-center gap-1.5">
+                      <Star className={`w-3.5 h-3.5 ${isTakbirah ? 'fill-white text-white' : 'text-slate-400 dark:text-slate-500'}`} />
                       <span>تكبيرة الإحرام بالمسجد</span>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
-                      <span className={`text-xs px-2 py-0.5 rounded font-black ${
-                        isTakbirah ? 'bg-white/20 text-white' : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
-                      }`}>
-                        100 نقطة
-                      </span>
-                      {isTakbirah && <Check className="w-4 h-4 text-white" />}
-                    </div>
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-black ${
+                      isTakbirah 
+                        ? 'bg-white/20 text-white' 
+                        : 'bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700'
+                    }`}>
+                      100 نقطة
+                    </span>
                   </button>
 
-                  {/* 2. SECONDARY QUICK ACTIONS (One-Click) */}
-                  <div className="grid grid-cols-2 gap-2 mt-2.5">
-                    {/* Mosque Full without Takbirah */}
+                  {/* 2. SECONDARY ACTIONS (Using Vector Lucide Icons instead of emojis!) */}
+                  <div className="grid grid-cols-2 gap-1.5 mb-2.5">
                     <button
                       type="button"
                       onClick={() => handleSetMosqueAllRakats(prayerId)}
-                      className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all text-center flex items-center justify-center gap-1 ${
+                      className={`py-1.5 px-2 rounded-lg border text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 ${
                         isFullMosque
-                          ? 'bg-cyan-600 text-white border-cyan-500 shadow-sm'
-                          : 'bg-slate-100 hover:bg-slate-200/80 dark:bg-game-surface dark:hover:bg-game-card border-slate-200 dark:border-game-border text-slate-700 dark:text-slate-300'
+                          ? 'bg-cyan-600 text-white border-cyan-500 font-black shadow-sm'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 dark:bg-[#0E1424] dark:hover:bg-[#1A2542] dark:border-[#1E2842] dark:text-slate-300'
                       }`}
-                      title="صليت جميع الركعات في المسجد ولكن فاتت تكبيرة الإحرام"
+                      title="صلاة الجماعة كاملة بالمسجد دون إدراك تكبيرة الإحرام"
                     >
-                      <span>🕌</span>
-                      <span>جماعة (80 نقطة)</span>
+                      <Users className={`w-3.5 h-3.5 ${isFullMosque ? 'text-white' : 'text-cyan-500'}`} />
+                      <span>جماعة (80)</span>
                     </button>
 
-                    {/* Home Prayer */}
                     <button
                       type="button"
                       onClick={() => handleSetHomePrayer(prayerId)}
-                      className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all text-center flex items-center justify-center gap-1 ${
+                      className={`py-1.5 px-2 rounded-lg border text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 ${
                         isHome
-                          ? 'bg-amber-600 text-white border-amber-500 shadow-sm'
-                          : 'bg-slate-100 hover:bg-slate-200/80 dark:bg-game-surface dark:hover:bg-game-card border-slate-200 dark:border-game-border text-slate-700 dark:text-slate-300'
+                          ? 'bg-amber-600 text-white border-amber-500 font-black shadow-sm'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-300 dark:bg-[#0E1424] dark:hover:bg-[#1A2542] dark:border-[#1E2842] dark:text-slate-400'
                       }`}
-                      title="صُليت منفرداً أو في البيت"
+                      title="صلاة بالبيت = 0 نقطة"
                     >
-                      <Home className="w-3.5 h-3.5" />
-                      <span>صلاة بالبيت</span>
+                      <Home className={`w-3.5 h-3.5 ${isHome ? 'text-white' : 'text-slate-400'}`} />
+                      <span>بالبيت (0)</span>
                     </button>
                   </div>
                 </div>
 
-                {/* 3. DIRECT MISSED RAK'AHS SELECTOR (Immediate click) */}
-                <div className="mt-3.5 pt-3 border-t border-slate-200 dark:border-game-border/60">
+                {/* 3. MISSED RAK'AHS SELECTOR IN MOSQUE */}
+                <div className="pt-2.5 border-t border-slate-200 dark:border-[#1E2842]">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                      هل ضاعت عليك ركعات؟
-                    </span>
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">فوات ركعات بالمسجد:</span>
                     {hasMissed && (
-                      <span className="text-[10px] font-black text-game-red">
-                        ضاعت {pData.missedRakats} ركعة
-                      </span>
+                      <span className="text-[10px] font-black text-rose-500">ضاعت {pData.missedRakats}</span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1.5">
-                    {Array.from({ length: config.rakats }, (_, i) => i + 1).map((num) => {
-                      const isSelected = pData.prayed && pData.missedRakats === num && !pData.caughtTakbirah;
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: config.rakats }, (_, i) => i + 1).map((n) => {
+                      const isSelected = pData.prayed && pData.missedRakats === n && pData.inMosque && !pData.caughtTakbirah;
                       return (
                         <button
-                          key={num}
+                          key={n}
                           type="button"
-                          onClick={() => handleSetMissedRakats(prayerId, num)}
-                          className={`flex-1 py-1.5 rounded-lg border text-[11px] font-black transition-all ${
+                          onClick={() => handleSetMissedRakats(prayerId, n)}
+                          className={`flex-1 py-1 rounded-md text-[10px] font-black border transition-all ${
                             isSelected
-                              ? 'bg-game-red text-white border-game-red shadow-sm'
-                              : 'bg-slate-100 hover:bg-rose-50 dark:bg-game-surface dark:hover:bg-game-card border-slate-200 dark:border-game-border text-slate-700 dark:text-slate-300'
+                              ? 'bg-rose-600 text-white border-rose-500 shadow-sm'
+                              : 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-600 dark:bg-[#0E1424] dark:border-[#1E2842] dark:text-slate-400 dark:hover:text-white'
                           }`}
-                          title={`ضاعت ${num} ركعة`}
                         >
-                          فاتت {num}
+                          {n}
                         </button>
                       );
                     })}
@@ -412,52 +405,46 @@ export default function TodayPage({ onRecordUpdated }) {
         </div>
       </div>
 
-      {/* Sunnah Prayers Track */}
-      <div className="steam-glass rounded-2xl p-5 sm:p-6 shadow-steam-card">
+      {/* SUNNAH QUEST SECTION */}
+      <div className="gaming-card rounded-2xl p-5 border border-slate-200 dark:border-[#1E2842]">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-500">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white">صلوات النوافل والسنن الرواتب</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400">
-                100 نقطة لكل نافلة | مسار نقاط منفصل تماماً لا يؤثر على نسبة الفرائض
-              </p>
-            </div>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+              مهام النوافل والسنن الرواتب
+            </h3>
           </div>
 
-          <span className="text-xs font-black text-amber-600 dark:text-amber-400 px-3 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30">
-            {dayScore.completedSunnahCount} من {dayScore.totalSunnahCount} صلوات
+          <span className="text-xs font-black text-amber-600 dark:text-amber-400 px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 font-mono">
+            {dayScore.completedSunnahCount} / {dayScore.totalSunnahCount} صلوات مؤداة
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {SUNNAH_CONFIG.map((s) => {
-            const isCompleted = Boolean(record.sunnah && record.sunnah[s.id]);
+            const isDone = Boolean(record.sunnah && record.sunnah[s.id]);
 
             return (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => handleSunnahToggle(s.id)}
-                className={`p-3.5 rounded-xl border text-right transition-all flex items-center justify-between group active:scale-95 ${
-                  isCompleted
-                    ? 'bg-amber-500/20 border-amber-500 shadow-sm text-amber-900 dark:text-amber-200'
-                    : 'bg-slate-100 hover:bg-amber-50/60 dark:bg-game-surface/80 dark:hover:bg-game-card border-slate-200 dark:border-game-border hover:border-amber-400 text-slate-700 dark:text-slate-300'
+                className={`p-3 rounded-xl border text-right transition-all flex flex-col justify-between group active:scale-95 ${
+                  isDone
+                    ? 'bg-amber-50 border-amber-500 text-slate-900 dark:bg-[#18233D] dark:text-white shadow-sm'
+                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:text-slate-900 dark:bg-[#0E1424] dark:border-[#1E2842] dark:text-slate-400 dark:hover:text-slate-200'
                 }`}
               >
-                <div>
-                  <div className="text-sm font-black leading-snug">{s.name}</div>
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{s.desc}</div>
-                </div>
-
-                <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
-                  isCompleted
-                    ? 'bg-amber-500 text-white font-black'
-                    : 'border border-slate-300 dark:border-game-border group-hover:border-amber-400'
-                }`}>
-                  {isCompleted ? '✓' : ''}
+                <div className="text-xs font-black leading-snug">{s.name}</div>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-200 dark:border-[#1E2842]">
+                  <span className="text-[10px] text-slate-500 font-mono">100 pts</span>
+                  <div className={`w-4 h-4 rounded flex items-center justify-center text-[10px] ${
+                    isDone 
+                      ? 'bg-amber-500 text-black font-black' 
+                      : 'border border-slate-300 dark:border-slate-700'
+                  }`}>
+                    {isDone ? '✓' : ''}
+                  </div>
                 </div>
               </button>
             );
@@ -465,16 +452,16 @@ export default function TodayPage({ onRecordUpdated }) {
         </div>
       </div>
 
-      {/* Floating Save Bar */}
-      <div className="sticky bottom-6 z-20 flex items-center justify-between p-4 rounded-2xl bg-white/95 dark:bg-game-surface/95 backdrop-blur-md border border-slate-200 dark:border-game-border shadow-2xl">
+      {/* Floating Save Action Bar */}
+      <div className="sticky bottom-6 z-20 flex items-center justify-between p-4 rounded-2xl bg-white/95 dark:bg-[#0E1424]/95 backdrop-blur-md border border-slate-200 dark:border-[#1E2842] shadow-2xl">
         <div className="flex items-center gap-2">
           {saveSuccess ? (
-            <span className="text-xs font-bold text-game-green flex items-center gap-1.5">
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
               تم حفظ صلوات اليوم بنجاح في IndexedDB!
             </span>
           ) : (
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               اضغط على زر الحفظ لتثبيت نقاط اليوم وتحديث المستويات
             </span>
           )}
@@ -483,7 +470,7 @@ export default function TodayPage({ onRecordUpdated }) {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-game-orange to-amber-600 hover:from-game-orangeHover hover:to-amber-500 text-white font-black text-sm shadow-glow-orange transition-all active:scale-95"
+          className="flex items-center gap-2 px-6 py-3 rounded-xl gaming-pill-gold text-black font-black text-xs transition-all active:scale-95 shadow-md"
         >
           <Save className="w-4 h-4" />
           <span>{saving ? 'جاري الحفظ...' : 'حفظ صلوات اليوم'}</span>

@@ -18,6 +18,7 @@ export const NAVIGATION_TABS = [
   {
     id: 'today',
     title: 'صلوات اليوم',
+    shortTitle: 'اليوم',
     subtitle: 'تسجيل الفرائض والنوافل',
     icon: Zap,
     badge: 'اليوم',
@@ -25,24 +26,28 @@ export const NAVIGATION_TABS = [
   {
     id: 'calendar',
     title: 'التقويم الشهري',
+    shortTitle: 'التقويم',
     subtitle: 'عرض وتعديل الأيام',
     icon: CalendarIcon,
   },
   {
     id: 'missed',
     title: 'الركعات الفائتة',
+    shortTitle: 'الفائتة',
     subtitle: 'تحليل الركعات والأيام',
     icon: Activity,
   },
   {
     id: 'mosque',
     title: 'المسجد والنوافل',
+    shortTitle: 'المسجد',
     subtitle: 'صلوات المسجد والسنن',
     icon: Sparkles,
   },
   {
     id: 'export',
     title: 'السجل والتصدير',
+    shortTitle: 'التصدير',
     subtitle: 'مصفوفة الشهر وPDF / صور',
     icon: FileSpreadsheet,
   },
@@ -58,7 +63,7 @@ export default function Sidebar({ activeTab, setActiveTab, onImportClick, level 
   };
 
   return (
-    <aside className="w-full lg:w-72 shrink-0 space-y-4">
+    <aside className="hidden lg:block w-72 shrink-0 space-y-4">
       
       {/* Gamer Profile Card */}
       <div className="gaming-card rounded-2xl p-4 flex items-center gap-3.5">

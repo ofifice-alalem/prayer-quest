@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
+import Sidebar, { NAVIGATION_TABS } from './components/Sidebar';
 import IslamicPattern from './components/IslamicPattern';
 import TodayPage from './pages/TodayPage';
 import CalendarPage from './pages/CalendarPage';
 import MissedRakatsPage from './pages/MissedRakatsPage';
 import MosqueTrackerPage from './pages/MosqueTrackerPage';
 import ExportPage from './pages/ExportPage';
-import { getAllRecords, importDatabaseBackup } from './services/db';
+import { getAllRecords, importDatabaseBackup, exportDatabaseBackup } from './services/db';
 import { calculateDayScore } from './services/scoring';
 import { getTodayKey } from './utils/dateUtils';
+import { User, Download, Upload, Award } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('today');
@@ -123,6 +124,14 @@ export default function App() {
     }
   };
 
+  const handleExportBackup = async () => {
+    try {
+      await exportDatabaseBackup();
+    } catch (err) {
+      alert('حدث خطأ أثناء تنزيل النسخة الاحتياطية: ' + err.message);
+    }
+  };
+
   return (
     <div className={`min-h-screen relative flex flex-col font-tajawal transition-colors duration-300 ${
       isDark ? 'bg-[#0A0E17] text-slate-100' : 'bg-[#F4F6FA] text-slate-900'
@@ -151,10 +160,52 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-[1500px] w-full mx-auto px-4 sm:px-6 py-6 relative z-10">
+      <main className="flex-1 max-w-[1500px] w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-28 lg:pb-8 relative z-10">
+        
+        {/* Mobile Player & Backup Bar (visible on < lg screens) */}
+        <div className="lg:hidden mb-4 gaming-card rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm border border-slate-200 dark:border-[#1E2842]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-yellow-400 p-0.5 shadow-sm">
+              <div className="w-full h-full rounded-[10px] bg-slate-100 dark:bg-[#0E1424] flex items-center justify-center text-amber-500 font-black">
+                <User className="w-5 h-5" />
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                <span>فارس المساجد</span>
+                <span className="px-1.5 py-0.2 rounded text-[9px] bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-mono">
+                  مستوى {level}
+                </span>
+              </div>
+              <div className="text-[10px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+                <Award className="w-3 h-3" />
+                <span>تصنيف الفئة الذهبية</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Backup Action Icons for Mobile */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleExportBackup}
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#161F36] dark:hover:bg-[#1E2B4B] border border-slate-200 dark:border-[#243358] text-slate-700 dark:text-slate-200 hover:text-amber-500 transition-colors shadow-sm"
+              title="تصدير نسخة احتياطية"
+            >
+              <Download className="w-4 h-4 text-amber-500" />
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#161F36] dark:hover:bg-[#1E2B4B] border border-slate-200 dark:border-[#243358] text-slate-700 dark:text-slate-200 hover:text-cyan-500 transition-colors shadow-sm"
+              title="استيراد نسخة احتياطية"
+            >
+              <Upload className="w-4 h-4 text-cyan-500" />
+            </button>
+          </div>
+        </div>
+
         <div className="flex flex-col lg:flex-row items-start gap-6">
           
-          {/* Gaming Client Sidebar */}
+          {/* Gaming Client Sidebar (Desktop Only) */}
           <Sidebar
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -186,11 +237,47 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full border-t border-slate-200 dark:border-[#1E2842] py-5 text-center text-xs text-slate-500 relative z-10">
+      <footer className="w-full border-t border-slate-200 dark:border-[#1E2842] py-5 text-center text-xs text-slate-500 relative z-10 mb-16 lg:mb-0">
         <p>
           مَـتـتـبّـع الـصَّـلَـوَات • DAILY PRAYER QUEST © {new Date().getFullYear()}
         </p>
       </footer>
+
+      {/* Fixed Mobile Gaming Bottom Navigation Bar */}
+      <nav 
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0D121F]/95 backdrop-blur-xl border-t border-slate-200 dark:border-[#1E2842] py-1.5 px-2 flex items-center justify-around shadow-2xl safe-area-bottom"
+        aria-label="التنقل السريع للجوال"
+      >
+        {NAVIGATION_TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all relative ${
+                isActive
+                  ? 'text-amber-500 font-black'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <div className={`p-1.5 rounded-lg transition-all ${
+                isActive ? 'bg-amber-500/15 text-amber-500 scale-110' : ''
+              }`}>
+                <Icon className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] mt-0.5 font-bold tracking-tight">
+                {tab.shortTitle || tab.title}
+              </span>
+              {isActive && (
+                <span className="absolute bottom-0 w-3 h-0.5 rounded-full bg-amber-500" />
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
     </div>
   );
 }

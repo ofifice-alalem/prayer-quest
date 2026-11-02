@@ -186,47 +186,47 @@ export default function TodayPage({ onRecordUpdated }) {
     <div className="space-y-6">
       
       {/* TOURNAMENT-STYLE HERO BANNER */}
-      <div className="relative rounded-3xl p-6 sm:p-8 overflow-hidden bg-gradient-to-r from-[#171330] via-[#1F1742] to-[#111933] border border-[#2B2353] shadow-xl text-white">
+      <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-8 overflow-hidden bg-gradient-to-r from-[#171330] via-[#1F1742] to-[#111933] border border-[#2B2353] shadow-xl text-white">
         {/* Ambient Top Glow */}
         <div 
           className="absolute -top-24 right-1/4 w-96 h-96 rounded-full blur-[100px] pointer-events-none opacity-30"
           style={{ background: 'radial-gradient(circle, #F59E0B, transparent 70%)' }}
         />
 
-        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-6">
+          <div className="space-y-1.5 sm:space-y-2 max-w-2xl">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
+              <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
                 QUEST ACTIVE • {formatArabicDate(todayKey)}
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
               تَحَدّي فُـرْسَـان الـمَـسَـاجِـد
             </h1>
 
-            <p className="text-xs sm:text-sm text-purple-100/90 font-medium leading-relaxed">
+            <p className="text-[11px] sm:text-sm text-purple-100/90 font-medium leading-relaxed">
               أدرك تكبيرة الإحرام في المسجد لتسجيل 100% كاملة. نقاط الفرائض مخصصة حصراً لصلوات المسجد.
             </p>
 
             {/* Gaming Stats Row */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-3 text-xs font-bold text-white">
-              <div className="flex items-center gap-2 bg-black/30 px-3.5 py-2 rounded-xl backdrop-blur-sm border border-white/10">
-                <Target className="w-4 h-4 text-amber-400" />
-                <span className="font-mono text-amber-400 font-black">{dayScore.totalFardScore}</span>
-                <span className="text-purple-200 text-[11px]">/ 500 نقطة فريضة</span>
+            <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-2 sm:gap-4 pt-2 sm:pt-3 text-xs font-bold text-white">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 bg-black/30 p-2 sm:px-3.5 sm:py-2 rounded-xl backdrop-blur-sm border border-white/10 text-center sm:text-right">
+                <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
+                <span className="font-mono text-amber-400 font-black text-xs sm:text-sm">{dayScore.totalFardScore}</span>
+                <span className="text-purple-200 text-[9px] sm:text-[11px]">/ 500 فريضة</span>
               </div>
 
-              <div className="flex items-center gap-2 bg-black/30 px-3.5 py-2 rounded-xl backdrop-blur-sm border border-white/10">
-                <Sparkles className="w-4 h-4 text-pink-400" />
-                <span className="font-mono text-pink-400 font-black">{dayScore.completedSunnahCount}</span>
-                <span className="text-purple-200 text-[11px]">من 6 نوافل مؤداة</span>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 bg-black/30 p-2 sm:px-3.5 sm:py-2 rounded-xl backdrop-blur-sm border border-white/10 text-center sm:text-right">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-400" />
+                <span className="font-mono text-pink-400 font-black text-xs sm:text-sm">{dayScore.completedSunnahCount}</span>
+                <span className="text-purple-200 text-[9px] sm:text-[11px]">من 6 نوافل</span>
               </div>
 
-              <div className="flex items-center gap-2 bg-black/30 px-3.5 py-2 rounded-xl backdrop-blur-sm border border-white/10">
-                <Shield className="w-4 h-4 text-emerald-400" />
-                <span className="text-emerald-400 font-black">{dayScore.totalFardPrayedInMosque}</span>
-                <span className="text-purple-200 text-[11px]">صلوات في المسجد</span>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 bg-black/30 p-2 sm:px-3.5 sm:py-2 rounded-xl backdrop-blur-sm border border-white/10 text-center sm:text-right">
+                <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
+                <span className="text-emerald-400 font-black text-xs sm:text-sm">{dayScore.totalFardPrayedInMosque}</span>
+                <span className="text-purple-200 text-[9px] sm:text-[11px]">بالمسجد</span>
               </div>
             </div>
           </div>
@@ -242,7 +242,7 @@ export default function TodayPage({ onRecordUpdated }) {
         </div>
 
         {/* Global Progress Line */}
-        <div className="mt-6 pt-4 border-t border-white/15">
+        <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/15">
           <div className="w-full h-2 rounded-full bg-black/50 overflow-hidden p-0.5">
             <div 
               className="h-full rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-emerald-400 transition-all duration-500"
@@ -453,15 +453,15 @@ export default function TodayPage({ onRecordUpdated }) {
       </div>
 
       {/* Floating Save Action Bar */}
-      <div className="sticky bottom-6 z-20 flex items-center justify-between p-4 rounded-2xl bg-white/95 dark:bg-[#0E1424]/95 backdrop-blur-md border border-slate-200 dark:border-[#1E2842] shadow-2xl">
+      <div className="sticky bottom-20 lg:bottom-6 z-20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-[#0E1424]/95 backdrop-blur-md border border-slate-200 dark:border-[#1E2842] shadow-2xl">
         <div className="flex items-center gap-2">
           {saveSuccess ? (
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4" />
-              تم حفظ صلوات اليوم بنجاح في IndexedDB!
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>تم حفظ صلوات اليوم بنجاح في IndexedDB!</span>
             </span>
           ) : (
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
               اضغط على زر الحفظ لتثبيت نقاط اليوم وتحديث المستويات
             </span>
           )}
@@ -470,7 +470,7 @@ export default function TodayPage({ onRecordUpdated }) {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl gaming-pill-gold text-black font-black text-xs transition-all active:scale-95 shadow-md"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl gaming-pill-gold text-black font-black text-xs transition-all active:scale-95 shadow-md"
         >
           <Save className="w-4 h-4" />
           <span>{saving ? 'جاري الحفظ...' : 'حفظ صلوات اليوم'}</span>

@@ -199,17 +199,17 @@ export default function DayDrawer({ isOpen, onClose, dateKey, onRecordUpdated })
         aria-hidden="true"
       />
 
-      {/* DRAWER PANEL: Rendered via Portal directly to body */}
+      {/* DRAWER PANEL: Rendered via Portal on the RIGHT side */}
       <div 
-        className="fixed inset-y-0 left-0 max-w-full flex z-[1000000]"
+        className="fixed inset-y-0 right-0 max-w-full flex z-[1000000]"
         dir="rtl"
       >
         <div 
           style={{
-            transform: animateIn ? 'translateX(0)' : 'translateX(-100%)',
+            transform: animateIn ? 'translateX(0)' : 'translateX(100%)',
             transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
-          className="w-screen max-w-md sm:max-w-lg bg-white dark:bg-[#0F1526] text-slate-900 dark:text-white border-r border-slate-200 dark:border-[#222E4D] shadow-2xl flex flex-col text-right h-full"
+          className="w-screen max-w-full sm:max-w-md md:max-w-lg bg-white dark:bg-[#0F1526] text-slate-900 dark:text-white border-l border-slate-200 dark:border-[#222E4D] shadow-2xl flex flex-col text-right h-full"
         >
           {/* Header with High-Contrast Clear Close Button */}
           <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#1E2842] bg-slate-50 dark:bg-[#141B30] flex items-center justify-between shrink-0">
